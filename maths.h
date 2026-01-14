@@ -10,11 +10,12 @@ class Matrix {
         ~Matrix();
 
         float& operator()(int i, int j) const ;
-        Matrix operator+ (Matrix& other) const ;
-        Matrix& operator+=(Matrix& other) ;
-        Matrix operator*(Matrix& other) const ;
+        Matrix& operator= (const Matrix&  other) ;
+        Matrix operator+  (const Matrix&  other) const ;
+        Matrix& operator+=(const Matrix&  other) ;
+        Matrix operator*  (const Matrix&  other) const ;
         
-        void print();
+        void print() const ;
         void randomize(float min, float max) ;
 
     private :

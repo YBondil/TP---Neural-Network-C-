@@ -15,7 +15,7 @@ Matrix::Matrix (Matrix const& other){
     this-> cols_ = other.cols_ ;
     for (int i=0; i<other.rows_; i++){
         for (int j = 0; j<other.cols_; j++){
-            this-> data_[i*cols_ + j] = other.data_[i*rows_ + j];
+            this-> data_[i*cols_ + j] = other.data_[i*cols_ + j];
         }
     }
 } ;
@@ -33,7 +33,7 @@ float& Matrix::operator() (int i, int j) const {
     return data_[i * cols_ + j];
 }
 
-Matrix Matrix::operator+ (Matrix& other) const{
+Matrix Matrix::operator+ (const Matrix& other) const{
     if (rows_ != other.rows_ || cols_ != other.cols_){
         throw std::invalid_argument("Matrix size not compatible for sum") ;
     }
@@ -46,7 +46,19 @@ Matrix Matrix::operator+ (Matrix& other) const{
     return res ;
 }
 
-Matrix& Matrix::operator+=(Matrix& other) {
+Matrix& Matrix::operator=(const Matrix&  other){
+    if (this-> cols_ != other.cols_ || this -> rows_ != other.rows_){
+        throw std::invalid_argument ("Matrix size not compatible for = operator");
+    }
+    for (int i = 0; i< rows_; i++){
+        for (int j =0 ; j<cols_; j++){
+            (*this)(i,j) = (*this)(i,j) + other(i,j);
+        }
+        
+    }
+}
+
+Matrix& Matrix::operator+=(const Matrix& other) {
     if (rows_ != other.rows_ || cols_ != other.cols_){
         throw std::invalid_argument("Matrix size not compatible for sum") ;
     }
@@ -58,7 +70,7 @@ Matrix& Matrix::operator+=(Matrix& other) {
     return *this;
 }
 
-Matrix Matrix::operator* (Matrix & other) const {
+Matrix Matrix::operator* (const Matrix & other) const {
     if (cols_ != other.rows_){
         throw std::invalid_argument("Matix sizes not compatible for dot product") ;
     }
@@ -78,7 +90,7 @@ Matrix Matrix::operator* (Matrix & other) const {
     return res ; 
 }
 
-void Matrix::print(){
+void Matrix::print() const {
     for (int i = 0; i < rows_;i++){
         for (int j = 0; j< cols_ ; j++){
             std::cout<<" " << (*this)(i,j) << " " ;
