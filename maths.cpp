@@ -8,6 +8,17 @@ Matrix::Matrix(int rows, int cols){
     rows_ = rows ;
     cols_ = cols ; 
 }
+
+Matrix::Matrix (Matrix const& other){
+    this-> data_ = new float[other.rows_*other.cols_] ;
+    this-> rows_ = other.rows_ ;
+    this-> cols_ = other.cols_ ;
+    for (int i=0; i<other.rows_; i++){
+        for (int j = 0; j<other.cols_; j++){
+            this-> data_[i*cols_ + j] = other.data_[i*rows_ + j];
+        }
+    }
+} ;
 Matrix::~Matrix(){
     delete [] data_ ;
 }

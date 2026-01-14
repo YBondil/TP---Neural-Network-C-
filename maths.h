@@ -6,6 +6,7 @@ class Matrix {
     public :
 
         Matrix(int rows, int cols);
+        Matrix (Matrix const& other) ;
         ~Matrix();
 
         float& operator()(int i, int j) const ;
