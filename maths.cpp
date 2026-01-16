@@ -2,11 +2,21 @@
 #include <iostream>
 #include <random>
 #include <stdexcept>
+#include <functional>
 
 Matrix::Matrix(int rows, int cols){
     data_ = new float[rows*cols] ;
     rows_ = rows ;
     cols_ = cols ; 
+}
+Matrix::Matrix(int rows, int cols, float* values){
+    data_ = new float[rows*cols] ;
+    rows_ = rows ;
+    cols_ = cols ; 
+
+    for (int i = 0; i<rows_*cols_; i++){
+        data_[i] = values[i];
+    }
 }
 
 Matrix::Matrix (Matrix const& other){
@@ -46,6 +56,44 @@ Matrix Matrix::operator+ (const Matrix& other) const{
     return res ;
 }
 
+Matrix& Matrix::operator+=(const Matrix& other) {
+    if (rows_ != other.rows_ || cols_ != other.cols_){
+        throw std::invalid_argument("Matrix size not compatible for sum") ;
+    }
+    for (int i = 0; i< rows_; i++){
+        for (int j =0 ; j<cols_; j++){
+            (*this)(i,j) += other(i,j);
+        }
+    }
+    return *this;
+}
+
+Matrix Matrix::operator- (const Matrix& other) const{
+    if (rows_ != other.rows_ || cols_ != other.cols_){
+        throw std::invalid_argument("Matrix size not compatible for sum") ;
+    }
+    Matrix res = Matrix(rows_, cols_);
+    for (int i = 0; i< rows_; i++){
+        for (int j =0 ; j<cols_; j++){
+            res(i,j) = (*this)(i,j) - other(i,j);
+        }
+    }
+    return res ;
+}
+
+Matrix& Matrix::operator-=(const Matrix& other) {
+    if (rows_ != other.rows_ || cols_ != other.cols_){
+        throw std::invalid_argument("Matrix size not compatible for sum") ;
+    }
+    for (int i = 0; i< rows_; i++){
+        for (int j =0 ; j<cols_; j++){
+            (*this)(i,j) -= other(i,j);
+        }
+    }
+    return *this;
+}
+
+
 Matrix& Matrix::operator=(const Matrix&  other){
     if (this-> cols_ != other.cols_ || this -> rows_ != other.rows_){
         throw std::invalid_argument ("Matrix size not compatible for = operator");
@@ -57,18 +105,6 @@ Matrix& Matrix::operator=(const Matrix&  other){
         
     }
     return *this ;
-}
-
-Matrix& Matrix::operator+=(const Matrix& other) {
-    if (rows_ != other.rows_ || cols_ != other.cols_){
-        throw std::invalid_argument("Matrix size not compatible for sum") ;
-    }
-    for (int i = 0; i< rows_; i++){
-        for (int j =0 ; j<cols_; j++){
-            (*this)(i,j) += other(i,j);
-        }
-    }
-    return *this;
 }
 
 Matrix Matrix::operator* (const Matrix & other) const {
@@ -91,14 +127,56 @@ Matrix Matrix::operator* (const Matrix & other) const {
     return res ; 
 }
 
-Matrix& Matrix::operator^(float lambda) {
+Matrix Matrix::operator^(float lambda) {
+    Matrix res = Matrix(*this) ;
+    for (int i = 0; i< rows_*cols_; i++){
+        res.data_[i] *= lambda;
+    }
+    return res;
+}
+
+Matrix Matrix::hadamard(Matrix& other){
+    Matrix res = Matrix(*this) ;
     for (int i = 0; i< rows_; i++){
         for (int j =0 ; j<cols_; j++){
-            (*this)(i,j) *= lambda;
+            res(i,j) *= other(i,j);
         }
     }
-    return *this;
+    return res ;
 }
+
+void Matrix::transpose() {
+    float* data_bis_ = new float[rows_ * cols_];
+    for (int i = 0; i < rows_; i++) {
+        for (int j = 0; j < cols_; j++) {
+            data_bis_[j * rows_ + i] = data_[i * cols_ + j];
+        }
+    }
+    delete[] data_;
+    data_ = data_bis_;
+    std::swap(rows_, cols_);
+}
+
+Matrix Matrix::transposed() const {
+    Matrix result(cols_, rows_);
+    for (int i = 0; i < rows_; i++) {
+        for (int j = 0; j < cols_; j++) {
+            result(j, i) = (*this)(i, j);
+        }
+    }
+    return result;
+}
+
+Matrix& Matrix::apply(std::function<float (float)> func){
+    for (int i = 0; i < rows_;i++){
+        for (int j = 0; j< cols_ ; j++){
+            (*this)(i,j) = func((*this)(i,j)) ;
+        }
+    }
+    return *this ; 
+}
+
+
 
 void Matrix::print() const {
     for (int i = 0; i < rows_;i++){
@@ -110,6 +188,24 @@ void Matrix::print() const {
     std::cout << std::endl ; 
 }
 
+void Matrix::print(int i, int j) const {
+    std::cout << (*this)(i,j) << std::endl ;
+}
+
+void Matrix::print_col(int col) const{
+    for (int i = 0; i< rows_; i++){
+        std::cout << (*this)(i,col) << std::endl ;
+    }
+    std::cout << std::endl ;
+}
+
+void Matrix::print_row(int row) const{
+    for (int i = 0; i< cols_; i++){
+        std::cout << (*this)(row,i) << " " ;
+    }
+    std::cout << std::endl ;
+}
+
 void Matrix::randomize(float min, float max) {
     static std::random_device rd;
     static std::mt19937 gen(rd());
@@ -119,3 +215,11 @@ void Matrix::randomize(float min, float max) {
         data_[i] = dis(gen);
     }
 }
+float Matrix::sum() const {
+    float res = 0. ;
+    for (int i = 0; i < rows_*cols_; i++){
+        res += data_[i] ;
+    } 
+    return res ; 
+}
+

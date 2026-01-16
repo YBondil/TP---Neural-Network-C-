@@ -1,27 +1,40 @@
-#include <iostream> 
-
+#pragma once 
+#include <functional>
+#include <cmath>
 
 class Matrix {
    
-    public :
-
+    public :    
         Matrix(int rows, int cols);
+        Matrix(int rows, int cols, float* values);
         Matrix (Matrix const& other) ;
-        ~Matrix();
-
+        ~Matrix();  
+        
+        //Operators
         float& operator()(int i, int j) const ;
         Matrix& operator= (const Matrix&  other) ;
         Matrix operator+  (const Matrix&  other) const ;
         Matrix& operator+=(const Matrix&  other) ;
+        Matrix operator-  (const Matrix&  other) const ;
+        Matrix& operator-=(const Matrix&  other) ;
         Matrix operator*  (const Matrix&  other) const ;
-        Matrix& operator^ (float lambda) ;
-
-        Matrix& transpose (const Matrix& matrix) ;
+        Matrix operator^ (float lambda) ;
+         
+        Matrix hadamard (Matrix& other);
+        void transpose() ;
+        Matrix transposed() const ; 
+        Matrix& apply(std::function<float (float)>);    
         
-        void print() const ;
+        //Other methods
         int get_rows(){return rows_;};
-        int get_cols(){return cols_;};
+        int get_cols(){return cols_;};  
+        void print() const ;
+        void print(int i, int j) const;
+        void print_col(int col) const;
+        void print_row(int row) const;
         void randomize(float min, float max) ;
+        float sum()const;
+        float mean() const {return sum()/(rows_*cols_) ; };
 
     private :
 
@@ -30,3 +43,19 @@ class Matrix {
        int cols_ ;
 
 };
+
+
+namespace Maths{
+    inline float values[9] = {1.0, 0.0, 0., 0., 1., 0., 0., 0., 1.}; 
+    inline Matrix id = Matrix(3,3, values);
+
+   
+    static float sigmoid(float x){
+        return 1/(1+std::exp(-x)); 
+    }
+
+    static float sigmoid_prime(float x) {
+       float s = sigmoid(x);
+       return s * (1 - s);
+   }
+}
