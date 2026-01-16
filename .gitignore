@@ -1,0 +1,17 @@
+# Compiled files
+*.o
+obj/
+NN
+
+# macOS
+.DS_Store
+
+# Data files (too large for git)
+data/
+
+# Editor files
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
