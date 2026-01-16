@@ -37,8 +37,10 @@ Matrix::~Matrix(){
 float& Matrix::operator() (int i, int j) const {
     
     if (i < 0 || i >= rows_ || j < 0 || j >= cols_) {
-        throw std::out_of_range("Index de matrice hors limites");
-    }
+    std::cerr << "Erreur d'accès : indices (" << i << "," << j 
+              << ") pour une matrice de taille " << rows_ << "x" << cols_ << std::endl;
+    throw std::out_of_range("Index de matrice hors limites");
+}
 
     return data_[i * cols_ + j];
 }
