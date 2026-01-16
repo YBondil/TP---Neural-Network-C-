@@ -1,7 +1,7 @@
 # 1. Variables de configuration
 CXX      = g++
 CXXFLAGS = -Wall -Wextra -std=c++17
-TARGET   = mon_programme
+TARGET   = NN
 SRC_DIR  = .
 OBJ_DIR  = obj
 

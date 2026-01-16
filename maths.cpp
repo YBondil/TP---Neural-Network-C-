@@ -52,10 +52,11 @@ Matrix& Matrix::operator=(const Matrix&  other){
     }
     for (int i = 0; i< rows_; i++){
         for (int j =0 ; j<cols_; j++){
-            (*this)(i,j) = (*this)(i,j) + other(i,j);
+            (*this)(i,j) =  other(i,j);
         }
         
     }
+    return *this ;
 }
 
 Matrix& Matrix::operator+=(const Matrix& other) {
@@ -88,6 +89,15 @@ Matrix Matrix::operator* (const Matrix & other) const {
     }
 
     return res ; 
+}
+
+Matrix& Matrix::operator^(float lambda) {
+    for (int i = 0; i< rows_; i++){
+        for (int j =0 ; j<cols_; j++){
+            (*this)(i,j) *= lambda;
+        }
+    }
+    return *this;
 }
 
 void Matrix::print() const {
