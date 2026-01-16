@@ -18,7 +18,7 @@ class Matrix {
         Matrix operator-  (const Matrix&  other) const ;
         Matrix& operator-=(const Matrix&  other) ;
         Matrix operator*  (const Matrix&  other) const ;
-        Matrix operator^ (float lambda) ;
+        Matrix operator* (float lambda) ;
          
         Matrix hadamard (Matrix& other);
         void transpose() ;
@@ -58,4 +58,6 @@ namespace Maths{
        float s = sigmoid(x);
        return s * (1 - s);
    }
+
+   //to do : implement cost(){}
 }
