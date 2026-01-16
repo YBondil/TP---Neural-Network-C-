@@ -5,7 +5,7 @@
 #include <functional>
 
 Matrix::Matrix(int rows, int cols){
-    data_ = new float[rows*cols] ;
+    data_ = new float[rows*cols]{} ;
     rows_ = rows ;
     cols_ = cols ; 
 }
@@ -37,9 +37,9 @@ Matrix::~Matrix(){
 float& Matrix::operator() (int i, int j) const {
     
     if (i < 0 || i >= rows_ || j < 0 || j >= cols_) {
-    std::cerr << "Erreur d'accès : indices (" << i << "," << j 
-              << ") pour une matrice de taille " << rows_ << "x" << cols_ << std::endl;
-    throw std::out_of_range("Index de matrice hors limites");
+        std::cerr << "Erreur d'accès : indices (" << i << "," << j 
+                  << ") pour une matrice de taille " << rows_ << "x" << cols_ << std::endl;
+        throw std::out_of_range("Index de matrice hors limites");
 }
 
     return data_[i * cols_ + j];
@@ -129,7 +129,7 @@ Matrix Matrix::operator* (const Matrix & other) const {
     return res ; 
 }
 
-Matrix Matrix::operator^(float lambda) {
+Matrix Matrix::operator*(float lambda) {
     Matrix res = Matrix(*this) ;
     for (int i = 0; i< rows_*cols_; i++){
         res.data_[i] *= lambda;
