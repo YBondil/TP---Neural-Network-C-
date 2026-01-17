@@ -21,7 +21,7 @@ void CSVReader::digit::visualize() const {
     std::cout << std::endl;
 }
 
-std::vector<std::vector<float>> CSVReader::read(const std::string& filename, char delimiter) {
+std::vector<std::vector<float>> CSVReader::read(const std::string& filename, char delimiter, int maxLines) {
     std::ifstream file(filename);
     if (!file.is_open()) {
         throw std::runtime_error("Cannot open file: " + filename);
@@ -29,8 +29,9 @@ std::vector<std::vector<float>> CSVReader::read(const std::string& filename, cha
 
     std::vector<std::vector<float>> data;
     std::string line;
+    int lineCount = 0;
 
-    while (std::getline(file, line)) {
+    while (std::getline(file, line) && (maxLines == -1 || lineCount < maxLines)) {
         std::vector<float> row;
         std::stringstream ss(line);
         std::string value;
@@ -42,14 +43,15 @@ std::vector<std::vector<float>> CSVReader::read(const std::string& filename, cha
         if (!row.empty()) {
             data.push_back(row);
         }
+        lineCount++;
     }
 
     file.close();
     return data;
 }
 
-Matrix CSVReader::readAsMatrix(const std::string& filename, char delimiter) {
-    auto data = read(filename, delimiter);
+Matrix CSVReader::readAsMatrix(const std::string& filename, char delimiter, int maxLines) {
+    auto data = read(filename, delimiter, maxLines);
     
     if (data.empty()) {
         throw std::runtime_error("Empty CSV file");
@@ -68,7 +70,7 @@ Matrix CSVReader::readAsMatrix(const std::string& filename, char delimiter) {
     return result;
 }
 
-std::vector<CSVReader::digit> CSVReader::readDigits(const std::string& filename) {
+std::vector<CSVReader::digit> CSVReader::readDigits(const std::string& filename, int maxLines) {
     std::ifstream file(filename);
     if (!file.is_open()) {
         throw std::runtime_error("Cannot open file: " + filename);
@@ -76,8 +78,9 @@ std::vector<CSVReader::digit> CSVReader::readDigits(const std::string& filename)
 
     std::vector<digit> digits;
     std::string line;
+    int lineCount = 0;
 
-    while (std::getline(file, line)) {
+    while (std::getline(file, line) && (maxLines == -1 || lineCount < maxLines)) {
         std::stringstream ss(line);
         std::string value;
         
@@ -100,6 +103,7 @@ std::vector<CSVReader::digit> CSVReader::readDigits(const std::string& filename)
         }
         
         digits.push_back({label, image});
+        lineCount++;
     }
 
     file.close();

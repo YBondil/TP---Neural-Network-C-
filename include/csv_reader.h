@@ -14,9 +14,9 @@ public:
         void visualize() const;
     };
 
-    static std::vector<std::vector<float>> read(const std::string& filename, char delimiter = ',');
-    static Matrix readAsMatrix(const std::string& filename, char delimiter = ',');
-    static std::vector<digit> readDigits(const std::string& filename);
+    static std::vector<std::vector<float>> read(const std::string& filename, char delimiter = ',', int maxLines = -1);
+    static Matrix readAsMatrix(const std::string& filename, char delimiter = ',', int maxLines = -1);
+    static std::vector<digit> readDigits(const std::string& filename, int maxLines = -1);
 };
 
 
