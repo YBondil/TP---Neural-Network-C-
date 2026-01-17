@@ -4,6 +4,12 @@
 #include <stdexcept>
 #include <functional>
 
+Matrix::Matrix(){
+    data_ = new float[1];
+    rows_ = 1;
+    cols_ = 1;
+}
+
 Matrix::Matrix(int rows, int cols){
     data_ = new float[rows*cols]{} ;
     rows_ = rows ;
@@ -97,16 +103,22 @@ Matrix& Matrix::operator-=(const Matrix& other) {
 
 
 Matrix& Matrix::operator=(const Matrix&  other){
-    if (this-> cols_ != other.cols_ || this -> rows_ != other.rows_){
-        throw std::invalid_argument ("Matrix size not compatible for = operator");
+    if (this == &other) return *this; // Self-assignment check
+    
+    if (this->cols_ != other.cols_ || this->rows_ != other.rows_){
+        // Redimension: delete old data and allocate new
+        delete[] data_;
+        rows_ = other.rows_;
+        cols_ = other.cols_;
+        data_ = new float[rows_ * cols_];
     }
-    for (int i = 0; i< rows_; i++){
-        for (int j =0 ; j<cols_; j++){
-            (*this)(i,j) =  other(i,j);
-        }
-        
+    
+    // Copy data
+    for (int i = 0; i < rows_ * cols_; i++){
+        data_[i] = other.data_[i];
     }
-    return *this ;
+    
+    return *this;
 }
 
 Matrix Matrix::operator* (const Matrix & other) const {
