@@ -5,6 +5,7 @@
 class Matrix {
    
     public :    
+        Matrix(); // default constructor
         Matrix(int rows, int cols);
         Matrix(int rows, int cols, float* values);
         Matrix (Matrix const& other) ;
