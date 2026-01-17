@@ -1,35 +1,80 @@
 #include "../include/neural_net.h"
+#include <iostream>
 
-NeuralNetwork::NeuralNetwork(int nb_hidden_layers, int* hidden_layers_sizes){
+#include "../include/neural_net.h"
+
+NeuralNetwork::NeuralNetwork(int nb_layers, int* layers_sizes) {
+    nb_layers_ = nb_layers;
     
-    nb_hidden_layers_ = nb_hidden_layers ;  
-    hidden_layers_size_ = hidden_layers_sizes ;
+    layers = new Matrix[nb_layers_];
+    weights = new Matrix[nb_layers_ - 1];
+    bias = new Matrix[nb_layers_ - 1];
 
-    hidden_layers = new Matrix[nb_hidden_layers];
-    weights = new Matrix[nb_hidden_layers+1];
-    bias = new Matrix[nb_hidden_layers];
-
-    input_layer_ = Matrix(784, 1);
-    output_layer_ = Matrix(10,1);
-
-    //Bias and hidden layers initialization
-    bias[0] = Matrix(10,1);
-    for(int i = 0; i<nb_hidden_layers; i++){
-
-        hidden_layers[i]=Matrix(*(hidden_layers_sizes + i),1) ;
-        bias[i+1] = Matrix(*(hidden_layers_sizes+i),1) ; 
+    for (int i = 0; i < nb_layers_; i++) {
+        layers[i] = Matrix(layers_sizes[i], 1);
+        
+        if (i < nb_layers_ - 1) {
+            weights[i] = Matrix(layers_sizes[i+1], layers_sizes[i]);
+            weights[i].randomize(-1.0, 1.0);
+            
+            bias[i] = Matrix(layers_sizes[i+1], 1);
+            bias[i].randomize(-1.0, 1.0);
+        }
     }
-    //Weights initialization
-    weights[0] = Matrix(*hidden_layers_sizes, 784)  ;
-    for (int i = 1; i< nb_hidden_layers; i++){
-        weights[i] = Matrix(*(hidden_layers_sizes+i),*(hidden_layers_sizes+i-1)) ;
-    } 
-    weights[nb_hidden_layers] = Matrix(10,hidden_layers_sizes[nb_hidden_layers-1]);
-
 }
 
-NeuralNetwork::~NeuralNetwork(){
-    delete[] hidden_layers;
+NeuralNetwork::~NeuralNetwork() {
+    delete[] layers;
     delete[] weights;
     delete[] bias;
+}
+
+
+
+void NeuralNetwork::initialize_parameters(){
+   
+    for(int i = 0; i<nb_layers_+1; i++){
+        weights[i].randomize(-100.f,100.f);
+        bias[i].randomize(-100.f,100.f);
+    }
+}
+
+void NeuralNetwork::display() const {
+    std::cout << "===========================================" << std::endl;
+    std::cout << "ARCHITECTURE DU RESEAU NEURONAL (UNIFIEE)" << std::endl;
+    std::cout << "===========================================" << std::endl;
+    std::cout << "Nombre total de couches : " << nb_layers_ << std::endl;
+
+    // Affichage de la couche d'entrée (Couche 0)
+    std::cout << "\n--- COUCHE 0 (ENTREE) ---" << std::endl;
+    std::cout << "Taille : " << layers[0].get_rows() << " neurones" << std::endl;
+
+    // Boucle pour les couches suivantes (Cachées et Sortie)
+    for (int i = 1; i < nb_layers_; ++i) {
+        std::string type = (i == nb_layers_ - 1) ? "SORTIE" : "CACHEE";
+        std::cout << "\n--- COUCHE " << i << " (" << type << ") ---" << std::endl;
+        std::cout << "Taille : " << layers[i].get_rows() << " neurones" << std::endl;
+
+        // Poids reliant la couche précédente (i-1) à la couche actuelle (i)
+        std::cout << "Poids (weights[" << i - 1 << "]) reliant L" << i - 1 << " -> L" << i 
+                  << " [" << weights[i - 1].get_rows() << "x" << weights[i - 1].get_cols() << "] :" << std::endl;
+        weights[i - 1].print();
+
+        // Biais appliqué à la couche actuelle (i)
+        std::cout << "Biais (bias[" << i - 1 << "]) de la couche L" << i 
+                  << " [" << bias[i - 1].get_rows() << "x" << bias[i - 1].get_cols() << "] :" << std::endl;
+        bias[i - 1].print();
+    }
+
+    std::cout << "===========================================" << std::endl;
+}
+
+void NeuralNetwork::forward(const Matrix& input) {
+    layers[0] = input; // L'entrée est la couche 0
+    
+    for (int i = 0; i < nb_layers_ - 1; i++) {
+        // layers[i+1] = sigmoid(W[i] * layers[i] + B[i])
+        layers[i+1] = (weights[i] * layers[i] + bias[i]);
+        layers[i+1].apply(Maths::sigmoid); //
+    }
 }
