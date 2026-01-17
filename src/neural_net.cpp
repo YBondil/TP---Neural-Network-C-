@@ -1,5 +1,7 @@
 #include "../include/neural_net.h"
 #include <iostream>
+#include <fstream>
+#include <sstream>
 
 #include "../include/neural_net.h"
 
@@ -33,9 +35,9 @@ NeuralNetwork::~NeuralNetwork() {
 
 void NeuralNetwork::initialize_parameters(){
    
-    for(int i = 0; i<nb_layers_+1; i++){
-        weights[i].randomize(-100.f,100.f);
-        bias[i].randomize(-100.f,100.f);
+    for(int i = 0; i<nb_layers_-1; i++){
+        weights[i].randomize(-1.f,1.f);
+        bias[i].randomize(-1.f,1.f);
     }
 }
 
@@ -77,4 +79,97 @@ void NeuralNetwork::forward(const Matrix& input) {
         layers[i+1] = (weights[i] * layers[i] + bias[i]);
         layers[i+1].apply(Maths::sigmoid); //
     }
+}
+
+
+
+void NeuralNetwork::backward(){};
+
+
+
+
+void NeuralNetwork::save_csv(std::string filename) {
+    std::ofstream file(filename);
+    if (!file.is_open()) {
+        std::cerr << "Erreur : Impossible de créer le fichier " << filename << std::endl;
+        return;
+    }
+
+    // Sauvegarde du nombre total de couches pour vérification à la lecture
+    file << nb_layers_ << "\n";
+
+    for (int i = 0; i < nb_layers_ - 1; i++) {
+        // Sauvegarde des Poids (Weights)
+        // Format : "W,indice,rows,cols"
+        file << "W," << i << "," << weights[i].get_rows() << "," << weights[i].get_cols() << "\n";
+        for (int r = 0; r < weights[i].get_rows(); r++) {
+            for (int c = 0; c < weights[i].get_cols(); c++) {
+                file << weights[i](r, c) << (c == weights[i].get_cols() - 1 ? "" : ",");
+            }
+            file << "\n";
+        }
+
+        // Sauvegarde des Biais (Bias)
+        // Format : "B,indice,rows,cols"
+        file << "B," << i << "," << bias[i].get_rows() << "," << bias[i].get_cols() << "\n";
+        for (int r = 0; r < bias[i].get_rows(); r++) {
+            for (int c = 0; c < bias[i].get_cols(); c++) {
+                file << bias[i](r, c) << (c == bias[i].get_cols() - 1 ? "" : ",");
+            }
+            file << "\n";
+        }
+    }
+    file.close();
+    std::cout << "Reseau sauvegarde avec succes dans : " << filename << std::endl;
+}
+
+void NeuralNetwork::load_from_csv(std::string filename) {
+    std::ifstream file(filename);
+    if (!file.is_open()) {
+        std::cerr << "Erreur : Impossible d'ouvrir le fichier " << filename << std::endl;
+        return;
+    }
+
+    std::string line;
+    std::getline(file, line);
+    int saved_nb_layers = std::stoi(line);
+
+    // Vérification de sécurité : l'architecture doit correspondre
+    if (saved_nb_layers != nb_layers_) {
+        std::cerr << "Erreur : L'architecture du fichier (" << saved_nb_layers 
+                  << " couches) ne correspond pas au reseau actuel (" << nb_layers_ << ")." << std::endl;
+        return;
+    }
+
+    for (int i = 0; i < nb_layers_ - 1; i++) {
+        // Lecture de l'en-tête des poids
+        std::getline(file, line); 
+        
+        // Chargement des données de la matrice de poids
+        for (int r = 0; r < weights[i].get_rows(); r++) {
+            std::getline(file, line);
+            std::stringstream ss(line);
+            std::string val;
+            for (int c = 0; c < weights[i].get_cols(); c++) {
+                std::getline(ss, val, ',');
+                weights[i](r, c) = std::stof(val);
+            }
+        }
+
+        // Lecture de l'en-tête des biais
+        std::getline(file, line);
+
+        // Chargement des données de la matrice de biais
+        for (int r = 0; r < bias[i].get_rows(); r++) {
+            std::getline(file, line);
+            std::stringstream ss(line);
+            std::string val;
+            for (int c = 0; c < bias[i].get_cols(); c++) {
+                std::getline(ss, val, ',');
+                bias[i](r, c) = std::stof(val);
+            }
+        }
+    }
+    file.close();
+    std::cout << "Reseau charge avec succes depuis : " << filename << std::endl;
 }

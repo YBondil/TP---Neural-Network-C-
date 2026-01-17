@@ -18,4 +18,8 @@ class NeuralNetwork {
         void initialize_parameters();
         void display() const ;
         void forward(const Matrix& input) ; 
+        void backward();
+
+        void save_csv(std::string filename);
+        void load_from_csv(std::string filename);
 };
