@@ -100,22 +100,24 @@ void NeuralNetwork::forward(const Matrix& input) {
     
     for (int i = 0; i < nb_layers_ - 1; i++) {
         layers[i+1] = weights[i] * layers[i];
-        for (int j = 0; j < batch_size_; j++) {
+
+        int current_batch = layers[i+1].get_cols();
+
+        for (int j = 0; j < current_batch; j++) {
             for (int k = 0; k < layers[i+1].get_rows(); k++) {
                 layers[i+1](k, j) += bias[i](k, 0);
             }
         }
-        
-        layers[i+1].apply(Maths::sigmoid);
+                layers[i+1].apply(Maths::sigmoid);
     }
-        
-    }
+            }
 
 
 //on utilise le fait que simga_prime(z) = a(1-a)
 //permet l'economie du stockage de z
 void NeuralNetwork::backward(const Matrix& target_y, float learning_rate) {
     Matrix delta = (layers[nb_layers_-1] - target_y);
+int current_batch = delta.get_cols();
     
     auto sig_deriv_from_a = [](float a) { return a * (1.0f - a); };
     
@@ -124,17 +126,17 @@ void NeuralNetwork::backward(const Matrix& target_y, float learning_rate) {
     delta = delta.hadamard(output_deriv);
 
     for (int i = nb_layers_ - 2; i >= 0; i--) {
-        // dW = (delta * a_prev^T) / batch_size
+        // dW = (delta * a_prev^T) / current_batch
         Matrix dW = delta * layers[i].transposed();
-        dW = dW * (1.0f / batch_size_);
+        dW = dW * (1.0f / current_batch);
         
         Matrix db(bias[i].get_rows(), 1);
         for (int r = 0; r < delta.get_rows(); r++) {
             float sum_err = 0;
-            for (int c = 0; c < batch_size_; c++) {
+            for (int c = 0; c < current_batch; c++) {
                 sum_err += delta(r, c);
             }
-            db(r, 0) = sum_err / batch_size_;
+            db(r, 0) = sum_err / current_batch;
         }
 
         if (i > 0) {
