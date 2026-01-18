@@ -1,7 +1,7 @@
 # 1. Variables de configuration
 CXX      = g++
-CXXFLAGS = -Wall -Wextra -std=c++17 -Iinclude
 TARGET   = NN
+CXXFLAGS = -Wall -Wextra -std=c++17 -Iinclude -O3 -march=native -ffast-math
 SRC_DIR  = src
 OBJ_DIR  = obj
 INC_DIR  = include
