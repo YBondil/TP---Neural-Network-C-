@@ -4,21 +4,19 @@
 #include "neural_net.h"
 
 int main(){
-    //std::vector<CSVReader::digit> digits_dev = CSVReader::readDigits("data/Mnist/test.csv", 100) ;
-    //digits_dev[99].visualize();
+    int layers[] = {784, 128, 10};
+    NeuralNetwork net(3, layers, 2);
     
-    int size [4] = {2,3,1};
-    NeuralNetwork net = NeuralNetwork(4,size);
-
-    //net.display() ;
-    net.initialize_parameters();
-    net.display();
-    net.save_csv("test.csv");
-
-    NeuralNetwork see = NeuralNetwork(0,nullptr);
-    see.load_from_csv("test.csv");
-    see.display();
-
+    Matrix batch = CSVReader::readAsMatrix("data/Mnist/train.csv", ',', 6);
+    
+    // Extract labels (first column) from the batch
+    Matrix labels = batch.sub_col(0);
+    Matrix y = labels.transposed().to_label_matrix();
+    
+    std::cout << "Labels:" << std::endl;
+    labels.transposed().print();
+    std::cout << "One-hot encoded:" << std::endl;
+    y.print();
     
     return 0;
 }
