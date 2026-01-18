@@ -3,11 +3,33 @@
 #include <fstream>
 #include <sstream>
 
-#include "../include/neural_net.h"
+#include "csv_reader.h" 
 
-NeuralNetwork::NeuralNetwork(int nb_layers, int* layers_sizes, int batch_size = 1) {
+
+
+NeuralNetwork::NeuralNetwork(int nb_layers, int* layers_sizes) {
     nb_layers_ = nb_layers;
-batch_size_ = batch_size;
+    batch_size_ = 1;
+    
+    layers = new Matrix[nb_layers_];
+    weights = new Matrix[nb_layers_ - 1];
+    bias = new Matrix[nb_layers_ - 1];
+
+    for (int i = 0; i < nb_layers_; i++) {
+        layers[i] = Matrix(layers_sizes[i], batch_size_);
+        
+        if (i < nb_layers_ - 1) {
+            weights[i] = Matrix(layers_sizes[i+1], layers_sizes[i]);
+            weights[i].randomize(-1.0, 1.0);
+            
+            bias[i] = Matrix(layers_sizes[i+1], 1);
+            bias[i].randomize(-1.0, 1.0);
+        }
+    }
+}
+NeuralNetwork::NeuralNetwork(int nb_layers, int* layers_sizes,int batch_size) {
+    nb_layers_ = nb_layers;
+    batch_size_ = batch_size;
     
     layers = new Matrix[nb_layers_];
     weights = new Matrix[nb_layers_ - 1];
@@ -47,7 +69,7 @@ void NeuralNetwork::display() const {
     std::cout << "ARCHITECTURE DU RESEAU NEURONAL (BATCH)" << std::endl;
     std::cout << "===========================================" << std::endl;
     std::cout << "Nombre total de couches : " << nb_layers_ << std::endl;
-std::cout << "Taille du batch : " << batch_size_ << std::endl;
+    std::cout << "Taille du batch : " << batch_size_ << std::endl;
 
     // Affichage de la couche d'entrée (Couche 0)
     std::cout << "\n--- COUCHE 0 (ENTREE) ---" << std::endl;
@@ -77,21 +99,56 @@ void NeuralNetwork::forward(const Matrix& input) {
     layers[0] = input;
     
     for (int i = 0; i < nb_layers_ - 1; i++) {
-                layers[i+1] = weights[i] * layers[i];
+        layers[i+1] = weights[i] * layers[i];
         for (int j = 0; j < batch_size_; j++) {
             for (int k = 0; k < layers[i+1].get_rows(); k++) {
                 layers[i+1](k, j) += bias[i](k, 0);
-}
+            }
         }
         
         layers[i+1].apply(Maths::sigmoid);
     }
+        
+    }
 
+
+//on utilise le fait que simga_prime(z) = a(1-a)
+//permet l'economie du stockage de z
+void NeuralNetwork::backward(const Matrix& target_y, float learning_rate) {
+    Matrix delta = (layers[nb_layers_-1] - target_y);
+    
+    auto sig_deriv_from_a = [](float a) { return a * (1.0f - a); };
+    
+    Matrix output_deriv = layers[nb_layers_-1];
+    output_deriv.apply(sig_deriv_from_a);
+    delta = delta.hadamard(output_deriv);
+
+    for (int i = nb_layers_ - 2; i >= 0; i--) {
+        // dW = (delta * a_prev^T) / batch_size
+        Matrix dW = delta * layers[i].transposed();
+        dW = dW * (1.0f / batch_size_);
+        
+        Matrix db(bias[i].get_rows(), 1);
+        for (int r = 0; r < delta.get_rows(); r++) {
+            float sum_err = 0;
+            for (int c = 0; c < batch_size_; c++) {
+                sum_err += delta(r, c);
+            }
+            db(r, 0) = sum_err / batch_size_;
+        }
+
+        weights[i] -= dW * learning_rate;
+        bias[i] -= db * learning_rate;
+
+        if (i > 0) {
+            // delta_prev = (W^T * delta) * sigma'(a_prev)
+            delta = weights[i].transposed() * delta;
+            Matrix prev_layer_deriv = layers[i];
+            prev_layer_deriv.apply(sig_deriv_from_a);
+            delta = delta.hadamard(prev_layer_deriv);
+        }
+    }
 }
-
-
-
-void NeuralNetwork::backward(){};
 
 
 
@@ -108,7 +165,7 @@ void NeuralNetwork::save_csv(std::string filename) {
 
     for (int i = 0; i < nb_layers_ - 1; i++) {
         // Sauvegarde des Poids (Weights)
-                file << "W," << i << "," << weights[i].get_rows() << "," << weights[i].get_cols() << "\n";
+        file << "W," << i << "," << weights[i].get_rows() << "," << weights[i].get_cols() << "\n";
         for (int r = 0; r < weights[i].get_rows(); r++) {
             for (int c = 0; c < weights[i].get_cols(); c++) {
                 file << weights[i](r, c) << (c == weights[i].get_cols() - 1 ? "" : ",");
@@ -117,7 +174,7 @@ void NeuralNetwork::save_csv(std::string filename) {
         }
 
         // Sauvegarde des Biais (Bias)
-                file << "B," << i << "," << bias[i].get_rows() << "," << bias[i].get_cols() << "\n";
+        file << "B," << i << "," << bias[i].get_rows() << "," << bias[i].get_cols() << "\n";
         for (int r = 0; r < bias[i].get_rows(); r++) {
             for (int c = 0; c < bias[i].get_cols(); c++) {
                 file << bias[i](r, c) << (c == bias[i].get_cols() - 1 ? "" : ",");
@@ -138,7 +195,7 @@ void NeuralNetwork::load_from_csv(std::string filename) {
 
     std::string line;
     std::getline(file, line);
-std::stringstream ss(line);
+    std::stringstream ss(line);
     std::string val;
     
     std::getline(ss, val, ',');
@@ -152,7 +209,7 @@ std::stringstream ss(line);
                   << " couches) ne correspond pas au reseau actuel (" << nb_layers_ << ")." << std::endl;
         return;
     }
-
+    
     if (saved_batch_size != batch_size_) {
         std::cerr << "Avertissement : Taille de batch differente (fichier: " << saved_batch_size 
                   << ", actuel: " << batch_size_ << ")." << std::endl;
