@@ -137,16 +137,15 @@ void NeuralNetwork::backward(const Matrix& target_y, float learning_rate) {
             db(r, 0) = sum_err / batch_size_;
         }
 
-        weights[i] -= dW * learning_rate;
-        bias[i] -= db * learning_rate;
-
         if (i > 0) {
-            // delta_prev = (W^T * delta) * sigma'(a_prev)
             delta = weights[i].transposed() * delta;
             Matrix prev_layer_deriv = layers[i];
             prev_layer_deriv.apply(sig_deriv_from_a);
             delta = delta.hadamard(prev_layer_deriv);
         }
+
+    weights[i] -= dW * learning_rate;
+    bias[i] -= db * learning_rate;
     }
 }
 

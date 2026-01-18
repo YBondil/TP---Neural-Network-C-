@@ -11,6 +11,9 @@ int main(){
     
     // Extract labels (first column) from the batch
     Matrix labels = batch.sub_col(0);
+    Matrix batch = CSVReader::readAsMatrix("data/Mnist/train.csv", ',', 6);
+    // Normalize: scale pixel values from [0, 255] to [0, 1]
+    batch = batch * (1.0f / 255.0f);
     Matrix y = labels.transposed().to_label_matrix();
     
     std::cout << "Labels:" << std::endl;

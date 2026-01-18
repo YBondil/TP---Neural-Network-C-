@@ -163,7 +163,7 @@ Matrix Matrix::operator*(float lambda) {
     return res;
 }
 
-Matrix Matrix::hadamard(Matrix& other){
+Matrix Matrix::hadamard(const Matrix& other){
     Matrix res = Matrix(*this) ;
     for (int i = 0; i< rows_; i++){
         for (int j =0 ; j<cols_; j++){
@@ -282,5 +282,3 @@ Matrix Matrix::to_label_matrix() const {
     }
     return result;
 }
-
-Matrix tab[5] ;
