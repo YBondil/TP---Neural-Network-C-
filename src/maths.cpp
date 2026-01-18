@@ -251,6 +251,31 @@ float Matrix::sum() const {
     return res ; 
 }
 
+float Matrix::max() const {
+    float max = (*this)(0,0) ; 
+    for (int i = 0 ; i < rows_*cols_; i++){
+        if (data_[i]> max){
+            max = data_[i] ;
+        }
+    }
+    return max ;
+}
+//int* Matrix::argmax() const {
+//    float max = (*this)(0,0) ; 
+//    int pos[2] = {0,0}; 
+//
+//    for (int i = 0 ; i < rows_; i++){
+//        for (int j = 0; j < cols_; j++){
+//            if ((*this)(i,j)> max){
+//                max = data_[i] ;
+//                pos[0], pos[1] = i,j ;
+//            }
+//        }
+//    }
+//    return pos ;
+//}
+//
+
 
 Matrix Matrix::sub_col(int col ) const {
     float*  res = new float[rows_];
