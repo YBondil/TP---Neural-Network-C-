@@ -30,7 +30,7 @@ class Matrix {
         Matrix operator*  (const Matrix&  other) const ;
         Matrix operator* (float lambda) ;
          
-        Matrix hadamard (Matrix& other);
+        Matrix hadamard (const Matrix& other);
         void transpose() ;
         Matrix transposed() const ; 
         Matrix& apply(std::function<float (float)>);    
