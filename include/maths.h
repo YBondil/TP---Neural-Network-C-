@@ -45,6 +45,8 @@ class Matrix {
         void randomize(float min, float max) ;
         float sum() const;
         float mean() const {return sum()/(rows_*cols_) ; };
+float max() const ;
+        int* argmax() const ;
 
         Matrix sub_col(int col) const;
         Matrix sub_row(int row) const;
