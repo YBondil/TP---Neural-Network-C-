@@ -149,7 +149,40 @@ void NeuralNetwork::backward(const Matrix& target_y, float learning_rate) {
     }
 }
 
+void NeuralNetwork::learn(const Matrix& data, float learning_rate, int epochs, std::string save_path) {
+    int total_samples = data.get_rows();
+    int input_dim = data.get_cols() - 1; // First column is the label
 
+    std::cout << "Starting training for " << epochs << " epochs..." << std::endl;
+
+    for (int e = 0; e < epochs; e++) {
+        for (int i = 0; i <= total_samples - batch_size_; i += batch_size_) {
+            
+            Matrix batch_features(input_dim, batch_size_);
+            Matrix batch_labels_raw(1, batch_size_);
+
+            for (int b = 0; b < batch_size_; b++) {
+                int sample_idx = i + b;
+                //labels
+                batch_labels_raw(0, b) = data(sample_idx, 0);
+                
+                // Store Normalized Pixels
+                for (int j = 0; j < input_dim; j++) {
+                    batch_features(j, b) = data(sample_idx, j + 1) / 255.0f;
+                }
+            }
+
+            Matrix target_y = batch_labels_raw.to_label_matrix();
+            
+            forward(batch_features);
+            backward(target_y, learning_rate);
+        }
+        std::cout << "Epoch " << e + 1 << "/" << epochs << " completed." << std::endl;
+    }
+
+    // 4. Save the results
+    save_csv(save_path);
+}
 
 
 void NeuralNetwork::save_csv(std::string filename) {
