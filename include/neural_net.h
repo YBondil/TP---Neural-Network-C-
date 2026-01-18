@@ -7,12 +7,13 @@ class NeuralNetwork {
     private :
 
         int nb_layers_ ;
+int batch_size_;
         Matrix * layers ; 
         Matrix * weights ; 
         Matrix * bias ;
     
     public : 
-        NeuralNetwork(int nb_hidden_layers, int* hidden_layers_size) ;
+        NeuralNetwork(int nb_hidden_layers, int* hidden_layers_size, int batch_size) ;
         ~NeuralNetwork();
 
         void initialize_parameters();
