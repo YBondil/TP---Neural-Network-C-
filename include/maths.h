@@ -37,6 +37,9 @@ class Matrix {
         float sum()const;
         float mean() const {return sum()/(rows_*cols_) ; };
 
+Matrix sub_col(int col) const;
+        Matrix sub_row(int row) const;
+
     private :
 
        float* data_ ;

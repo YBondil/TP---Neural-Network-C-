@@ -237,3 +237,24 @@ float Matrix::sum() const {
     return res ; 
 }
 
+
+Matrix Matrix::sub_col(int col ) const {
+    float*  res = new float[rows_];
+    for (int i = 0 ; i<rows_; i++){
+        res[i] = (*this)(i,col);
+    } 
+    Matrix matrix = Matrix(rows_, 1, res) ;
+    delete[] res;
+    return matrix;
+}
+
+Matrix Matrix::sub_row(int row ) const {
+    float* res = new float[cols_];
+    for (int i = 0 ; i<cols_; i++){
+        res[i] = (*this)(row,i);
+    } 
+    Matrix matrix =  Matrix(1, cols_, res);
+    delete [] res ;
+    return matrix ;
+}
+
