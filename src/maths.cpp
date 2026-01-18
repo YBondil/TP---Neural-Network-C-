@@ -122,23 +122,18 @@ Matrix& Matrix::operator=(const Matrix&  other){
 }
 
 Matrix Matrix::operator* (const Matrix & other) const {
-    if (cols_ != other.rows_){
-        throw std::invalid_argument("Matix sizes not compatible for dot product") ;
-    }
-    Matrix res = Matrix(rows_, other.cols_) ;
+    if (cols_ != other.rows_)         throw std::invalid_argument("Incompatible dimensions");
 
-    for (int i = 0; i < rows_; i++){
-        for (int j = 0; j < other.cols_; j++){
-
-            float coef = 0 ;
-            for (int n = 0; n < cols_; n++){
-                coef += (*this)(i,n)*other(n,j) ;
+    Matrix res(rows_, other.cols_); 
+    for (int i = 0; i < rows_; ++i) {
+        for (int k = 0; k < cols_; ++k) {
+            float temp = (*this)(i, k);
+            for (int j = 0; j < other.cols_; ++j) {
+                res(i, j) += temp * other(k, j);
             }
-            res(i,j) = coef;
-        }
+                    }
     }
-
-    return res ; 
+    return res; 
 }
 
 Matrix Matrix::operator*(float lambda) {
