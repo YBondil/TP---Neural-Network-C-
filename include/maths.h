@@ -45,7 +45,7 @@ class Matrix {
         void randomize(float min, float max) ;
         float sum() const;
         float mean() const {return sum()/(rows_*cols_) ; };
-float max() const ;
+        float max() const ;
         int* argmax() const ;
 
         Matrix sub_col(int col) const;
@@ -65,39 +65,8 @@ namespace Maths{
         return 1/(1+std::exp(-x)); 
     }
 
-    static float sigmoid_prime(float x) {
-       float s = sigmoid(x);
-       return s * (1 - s);
-   }
-}
-   //to do : implement cost(){}
-
-////   float cost(CSVReader::digit& target, Matrix& output){
-//        switch (target.label){
-//            case 0 :
-//                float values[10] = {1,0,0,0,0,0,0,0,0,0} ; 
-//            case 1 :
-//                float values[10] = {0,1,0,0,0,0,0,0,0,0} ;
-//            case 2 :
-//                float values[10] = {0,0,1,0,0,0,0,0,0,0} ;
-//            case 3 : 
-//                float values[10] = {0,0,0,1,0,0,0,0,0,0} ;
-//            case 4 :
-//                float values[10] = {0,0,0,0,1,0,0,0,0,0} ;
-//            case 5 :
-//                float values[10] = {0,0,0,0,0,1,0,0,0,0} ;
-//            case 6 : 
-//                float values[10] = {0,0,0,0,0,0,1,0,0,0} ;
-//            case 7 : 
-//                float values[10] = {0,0,0,0,0,0,0,1,0,0} ;
-//            case 8 :
-//                float values[10] = {0,0,0,0,0,0,0,0,1,0} ;
-//            case 9 :
-//                float values[10] = {0,0,0,0,0,0,0,0,0,1} ;
-//        }
-//        Matrix res = Matrix(10,1, values);
-//        auto sqare = [](float x){return x*x;} ;
-//        return (res-output).apply(sqare).sum() ;
+//    static float sigmoid_prime(float x) {
+//       float s = sigmoid(x);
+//       return s * (1 - s);
 //   }
-//   //to do : use softmax ?
-////}
+}

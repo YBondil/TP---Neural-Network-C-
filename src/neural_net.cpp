@@ -108,17 +108,17 @@ void NeuralNetwork::forward(const Matrix& input) {
                 layers[i+1](k, j) += bias[i](k, 0);
             }
         }
-                layers[i+1].apply(Maths::sigmoid);
-    }
-            }
+        layers[i+1].apply(Maths::sigmoid);
+    } 
+}
 
 
 //on utilise le fait que simga_prime(z) = a(1-a)
 //permet l'economie du stockage de z
 void NeuralNetwork::backward(const Matrix& target_y, float learning_rate) {
     Matrix delta = (layers[nb_layers_-1] - target_y);
-int current_batch = delta.get_cols();
-    
+    int current_batch = delta.get_cols();
+
     auto sig_deriv_from_a = [](float a) { return a * (1.0f - a); };
     
     Matrix output_deriv = layers[nb_layers_-1];
@@ -283,8 +283,9 @@ void NeuralNetwork::load_from_csv(std::string filename) {
 }
 
 
-int NeuralNetwork::prediction(const Matrix& image) {
-    
+
+int NeuralNetwork::prediction(const Matrix& image, int actual_label) {
+    // 1. Reconstitution de la matrice 28x28
     Matrix pixels_2d(28, 28);
     for (int i = 0; i < 28; i++) {
         for (int j = 0; j < 28; j++) {
@@ -292,16 +293,16 @@ int NeuralNetwork::prediction(const Matrix& image) {
         }
     }
 
-    
+    // 2. Utilisation du vrai label pour la visualisation
     CSVReader::digit d;
-    d.label = -1; 
+    d.label = actual_label; // On utilise maintenant le label passé en paramètre
     d.pixels = pixels_2d;
-    d.visualize(); 
+    //d.visualize(); 
 
-    
+    // 3. Calcul de la prédiction
     forward(image);
 
-    
+    // 4. Identification du résultat
     Matrix& output = layers[nb_layers_ - 1];
     int guess = 0;
     float max_prob = output(0, 0);
@@ -311,7 +312,9 @@ int NeuralNetwork::prediction(const Matrix& image) {
             guess = k;
         }
     }
-
-    std::cout << ">>> Prédiction du réseau : " << guess << " (Confiance : " << max_prob * 100 << "%)" << std::endl;
+//
+//    std::cout << ">>> Prédiction du réseau : " << guess 
+//              << " (Attendu : " << actual_label << ")" 
+//              << " | Confiance : " << max_prob * 100 << "%" << std::endl;
     return guess;
 }

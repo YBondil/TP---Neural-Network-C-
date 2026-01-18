@@ -21,7 +21,7 @@ class NeuralNetwork {
         void display() const ;
         void forward(const Matrix& input) ; 
         void backward(const Matrix& target_y, float learning_rate);
-        
+
         void learn(const Matrix& data, float learning_rate, int epochs, std::string save_path);
 
         void see_layer(int layer_nb){layers[layer_nb].print();};
@@ -30,5 +30,5 @@ class NeuralNetwork {
         void load_from_csv(std::string filename);
 
 
-        int prediction(const Matrix& image) ; 
+        int prediction(const Matrix& image, int actual_label = -1);
 };
