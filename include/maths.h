@@ -2,7 +2,14 @@
 #include <functional>
 #include <cmath>
 
+
 class Matrix {
+
+    private :
+
+       float* data_ ;
+       int rows_ ;
+       int cols_ ;
    
     public :    
         Matrix(); // default constructor
@@ -15,8 +22,10 @@ class Matrix {
         float& operator()(int i, int j) const ;
         Matrix& operator= (const Matrix&  other) ;
         Matrix operator+  (const Matrix&  other) const ;
+        Matrix operator+  (float value) const ;
         Matrix& operator+=(const Matrix&  other) ;
         Matrix operator-  (const Matrix&  other) const ;
+        Matrix operator-  (float value) const ;
         Matrix& operator-=(const Matrix&  other) ;
         Matrix operator*  (const Matrix&  other) const ;
         Matrix operator* (float lambda) ;
@@ -27,25 +36,21 @@ class Matrix {
         Matrix& apply(std::function<float (float)>);    
         
         //Other methods
-        int get_rows()const{return rows_;};
-        int get_cols()const{return cols_;};  
+        int get_rows()const {return rows_;};
+        int get_cols()const {return cols_;};  
         void print() const ;
         void print(int i, int j) const;
         void print_col(int col) const;
         void print_row(int row) const;
         void randomize(float min, float max) ;
-        float sum()const;
+        float sum() const;
         float mean() const {return sum()/(rows_*cols_) ; };
 
-Matrix sub_col(int col) const;
+        Matrix sub_col(int col) const;
         Matrix sub_row(int row) const;
+        Matrix to_label_matrix() const;
 
-    private :
-
-       float* data_ ;
-       int rows_ ;
-       int cols_ ;
-
+    
 };
 
 
@@ -62,6 +67,35 @@ namespace Maths{
        float s = sigmoid(x);
        return s * (1 - s);
    }
-
-   //to do : implement cost(){}
 }
+   //to do : implement cost(){}
+
+////   float cost(CSVReader::digit& target, Matrix& output){
+//        switch (target.label){
+//            case 0 :
+//                float values[10] = {1,0,0,0,0,0,0,0,0,0} ; 
+//            case 1 :
+//                float values[10] = {0,1,0,0,0,0,0,0,0,0} ;
+//            case 2 :
+//                float values[10] = {0,0,1,0,0,0,0,0,0,0} ;
+//            case 3 : 
+//                float values[10] = {0,0,0,1,0,0,0,0,0,0} ;
+//            case 4 :
+//                float values[10] = {0,0,0,0,1,0,0,0,0,0} ;
+//            case 5 :
+//                float values[10] = {0,0,0,0,0,1,0,0,0,0} ;
+//            case 6 : 
+//                float values[10] = {0,0,0,0,0,0,1,0,0,0} ;
+//            case 7 : 
+//                float values[10] = {0,0,0,0,0,0,0,1,0,0} ;
+//            case 8 :
+//                float values[10] = {0,0,0,0,0,0,0,0,1,0} ;
+//            case 9 :
+//                float values[10] = {0,0,0,0,0,0,0,0,0,1} ;
+//        }
+//        Matrix res = Matrix(10,1, values);
+//        auto sqare = [](float x){return x*x;} ;
+//        return (res-output).apply(sqare).sum() ;
+//   }
+//   //to do : use softmax ?
+////}

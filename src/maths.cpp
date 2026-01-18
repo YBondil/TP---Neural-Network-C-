@@ -63,6 +63,16 @@ Matrix Matrix::operator+ (const Matrix& other) const{
     }
     return res ;
 }
+Matrix Matrix::operator+ (float value) const{
+
+    Matrix res = Matrix(rows_, cols_);
+    for (int i = 0; i< rows_; i++){
+        for (int j =0 ; j<cols_; j++){
+            res(i,j) = (*this)(i,j) + value;
+        }
+    }
+    return res ;
+}
 
 Matrix& Matrix::operator+=(const Matrix& other) {
     if (rows_ != other.rows_ || cols_ != other.cols_){
@@ -84,6 +94,15 @@ Matrix Matrix::operator- (const Matrix& other) const{
     for (int i = 0; i< rows_; i++){
         for (int j =0 ; j<cols_; j++){
             res(i,j) = (*this)(i,j) - other(i,j);
+        }
+    }
+    return res ;
+}
+Matrix Matrix::operator- (float value) const{
+    Matrix res = Matrix(rows_, cols_);
+    for (int i = 0; i< rows_; i++){
+        for (int j =0 ; j<cols_; j++){
+            res(i,j) = (*this)(i,j) - value;
         }
     }
     return res ;
@@ -122,8 +141,8 @@ Matrix& Matrix::operator=(const Matrix&  other){
 }
 
 Matrix Matrix::operator* (const Matrix & other) const {
-    if (cols_ != other.rows_)         throw std::invalid_argument("Incompatible dimensions");
-
+    if (cols_ != other.rows_) throw std::invalid_argument("Incompatible dimensions");
+    
     Matrix res(rows_, other.cols_); 
     for (int i = 0; i < rows_; ++i) {
         for (int k = 0; k < cols_; ++k) {
@@ -131,9 +150,9 @@ Matrix Matrix::operator* (const Matrix & other) const {
             for (int j = 0; j < other.cols_; ++j) {
                 res(i, j) += temp * other(k, j);
             }
-                    }
+        }
     }
-    return res; 
+    return res;
 }
 
 Matrix Matrix::operator*(float lambda) {
@@ -253,3 +272,15 @@ Matrix Matrix::sub_row(int row ) const {
     return matrix ;
 }
 
+Matrix Matrix::to_label_matrix() const {
+    Matrix result(10, cols_);
+    for (int col = 0; col < cols_; col++) {
+        int label = static_cast<int>((*this)(0, col));
+        for (int row = 0; row < 10; row++) {
+            result(row, col) = (row == label) ? 1.0f : 0.0f;
+        }
+    }
+    return result;
+}
+
+Matrix tab[5] ;
