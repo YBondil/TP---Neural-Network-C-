@@ -27,8 +27,8 @@ class Matrix {
         Matrix& apply(std::function<float (float)>);    
         
         //Other methods
-        int get_rows(){return rows_;};
-        int get_cols(){return cols_;};  
+        int get_rows()const{return rows_;};
+        int get_cols()const{return cols_;};  
         void print() const ;
         void print(int i, int j) const;
         void print_col(int col) const;
