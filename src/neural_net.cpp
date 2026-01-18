@@ -279,3 +279,37 @@ void NeuralNetwork::load_from_csv(std::string filename) {
     file.close();
     std::cout << "Reseau charge avec succes depuis : " << filename << std::endl;
 }
+
+
+int NeuralNetwork::prediction(const Matrix& image) {
+    
+    Matrix pixels_2d(28, 28);
+    for (int i = 0; i < 28; i++) {
+        for (int j = 0; j < 28; j++) {
+            pixels_2d(i, j) = image(i * 28 + j, 0);
+        }
+    }
+
+    
+    CSVReader::digit d;
+    d.label = -1; 
+    d.pixels = pixels_2d;
+    d.visualize(); 
+
+    
+    forward(image);
+
+    
+    Matrix& output = layers[nb_layers_ - 1];
+    int guess = 0;
+    float max_prob = output(0, 0);
+    for (int k = 1; k < output.get_rows(); k++) {
+        if (output(k, 0) > max_prob) {
+            max_prob = output(k, 0);
+            guess = k;
+        }
+    }
+
+    std::cout << ">>> Prédiction du réseau : " << guess << " (Confiance : " << max_prob * 100 << "%)" << std::endl;
+    return guess;
+}
