@@ -21,17 +21,17 @@ int main() {
         net.load_from_csv(model_path);
 
 std::cout << "Loading data/Mnist/test.csv..." << std::endl;
-Matrix test_data = CSVReader::readAsMatrix("data/Mnist/test.csv", ',');
+Matrix<float> test_data = CSVReader::readAsMatrix("data/Mnist/test.csv", ',');
 
 std::ofstream error_file("test_python/errors.csv");
 int correct = 0;
 int errors_count = 0;
 
 for (int i = 0; i < test_data.get_rows(); i++) {
-    Matrix row = test_data.sub_row(i);
+    Matrix<float> row = test_data.sub_row(i);
     int label = static_cast<int>(row(0, 0));
     
-    Matrix image(784, 1);
+    Matrix<float> image(784, 1);
     for (int j = 0; j < 784; j++) {
         image(j, 0) = row(0, j + 1) / 255.0f;
     }
@@ -55,7 +55,7 @@ std::cout << "Number of errors saved in test_python/errors.csv : " << errors_cou
 
     } else {
         std::cout << "--- NO MODEL FOUND : BEGINNING OF LEARNING ---" << std::endl;
-        Matrix train_data = CSVReader::readAsMatrix("data/Mnist/train.csv", ',');
+        Matrix<float> train_data = CSVReader::readAsMatrix("data/Mnist/train.csv", ',');
         
         net.learn(train_data, 0.1f, 10, model_path);
         std::cout << "Leaning ended model saved in " << model_path << std::endl;
