@@ -162,7 +162,13 @@ Matrix Matrix::operator*(float lambda) {
     }
     return res;
 }
-
+Matrix& Matrix::operator/(float lambda){
+    if (lambda == 0){
+        throw std::invalid_argument("Division by 0") ;
+    }
+    (*this) = (*this)* (1/lambda) ;
+    return *this;
+}
 Matrix Matrix::hadamard(const Matrix& other){
     Matrix res = Matrix(*this) ;
     for (int i = 0; i< rows_; i++){
