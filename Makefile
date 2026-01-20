@@ -1,6 +1,6 @@
 # 1. Variables de configuration
 CXX      = g++
-TARGET   = NN
+TARGET   = Neural_net
 CXXFLAGS = -Wall -Wextra -std=c++17 -Iinclude -O3 -march=native -ffast-math
 SRC_DIR  = src
 OBJ_DIR  = obj
