@@ -266,11 +266,13 @@ float Matrix::max() const {
     }
     return max ;
 }
-//int* Matrix::argmax() const {
-//    float max = (*this)(0,0) ; 
-//    int pos[2] = {0,0}; 
-//
-//    for (int i = 0 ; i < rows_; i++){
+
+//argmax function only for column matrix
+int Matrix::argmax() const {
+float max = data_[0]; 
+int arg_max = 0; 
+
+for (int i = 0; i<rows_; i++){
 if ((*this)(i,0)>max){
             max = (*this)(i,0);
             arg_max = i;
