@@ -1,152 +1,160 @@
-#include "maths.h"
-#include <iostream>
-#include <random>
-#include <stdexcept>
-#include <functional>
+#include "../include/maths.h"
 
-Matrix::Matrix(){
-    data_ = new float[1];
+
+template <typename T>
+Matrix<T>::Matrix() {
+    data_ = new T[1];
     rows_ = 1;
     cols_ = 1;
 }
 
-Matrix::Matrix(int rows, int cols){
-    data_ = new float[rows*cols]{} ;
-    rows_ = rows ;
-    cols_ = cols ; 
+template <typename T>
+Matrix<T>::Matrix(int rows, int cols) {
+    data_ = new T[rows * cols]{};
+    rows_ = rows;
+    cols_ = cols; 
 }
-Matrix::Matrix(int rows, int cols, float* values){
-    data_ = new float[rows*cols] ;
-    rows_ = rows ;
-    cols_ = cols ; 
 
-    for (int i = 0; i<rows_*cols_; i++){
+template <typename T>
+Matrix<T>::Matrix(int rows, int cols, T* values) {
+    data_ = new T[rows * cols];
+    rows_ = rows;
+    cols_ = cols; 
+
+    for (int i = 0; i < rows_ * cols_; i++) {
         data_[i] = values[i];
     }
 }
 
-Matrix::Matrix (Matrix const& other){
-    this-> data_ = new float[other.rows_*other.cols_] ;
-    this-> rows_ = other.rows_ ;
-    this-> cols_ = other.cols_ ;
-    for (int i=0; i<other.rows_; i++){
-        for (int j = 0; j<other.cols_; j++){
-            this-> data_[i*cols_ + j] = other.data_[i*cols_ + j];
+template <typename T>
+Matrix<T>::Matrix(Matrix<T> const& other) {
+    this->data_ = new T[other.rows_ * other.cols_];
+    this->rows_ = other.rows_;
+    this->cols_ = other.cols_;
+    for (int i = 0; i < other.rows_; i++) {
+        for (int j = 0; j < other.cols_; j++) {
+            this->data_[i * cols_ + j] = other.data_[i * cols_ + j];
         }
     }
-} ;
-Matrix::~Matrix(){
-    delete [] data_ ;
 }
 
+template <typename T>
+Matrix<T>::~Matrix() {
+    delete[] data_;
+}
 
-float& Matrix::operator() (int i, int j) const {
-    
+template <typename T>
+T& Matrix<T>::operator()(int i, int j) const {
     if (i < 0 || i >= rows_ || j < 0 || j >= cols_) {
         std::cerr << "Erreur d'accès : indices (" << i << "," << j 
                   << ") pour une matrice de taille " << rows_ << "x" << cols_ << std::endl;
         throw std::out_of_range("Index de matrice hors limites");
-}
-
+    }
     return data_[i * cols_ + j];
 }
 
-Matrix Matrix::operator+ (const Matrix& other) const{
-    if (rows_ != other.rows_ || cols_ != other.cols_){
-        throw std::invalid_argument("Matrix size not compatible for sum") ;
+template <typename T>
+Matrix<T> Matrix<T>::operator+(const Matrix<T>& other) const {
+    if (rows_ != other.rows_ || cols_ != other.cols_) {
+        throw std::invalid_argument("Matrix size not compatible for sum");
     }
-    Matrix res = Matrix(rows_, cols_);
-    for (int i = 0; i< rows_; i++){
-        for (int j =0 ; j<cols_; j++){
-            res(i,j) = (*this)(i,j) + other(i,j);
+    Matrix<T> res(rows_, cols_);
+    for (int i = 0; i < rows_; i++) {
+        for (int j = 0; j < cols_; j++) {
+            res(i, j) = (*this)(i, j) + other(i, j);
         }
     }
-    return res ;
-}
-Matrix Matrix::operator+ (float value) const{
-
-    Matrix res = Matrix(rows_, cols_);
-    for (int i = 0; i< rows_; i++){
-        for (int j =0 ; j<cols_; j++){
-            res(i,j) = (*this)(i,j) + value;
-        }
-    }
-    return res ;
+    return res;
 }
 
-Matrix& Matrix::operator+=(const Matrix& other) {
-    if (rows_ != other.rows_ || cols_ != other.cols_){
-        throw std::invalid_argument("Matrix size not compatible for sum") ;
-    }
-    for (int i = 0; i< rows_; i++){
-        for (int j =0 ; j<cols_; j++){
-            (*this)(i,j) += other(i,j);
+template <typename T>
+Matrix<T> Matrix<T>::operator+(T value) const {
+    Matrix<T> res(rows_, cols_);
+    for (int i = 0; i < rows_; i++) {
+        for (int j = 0; j < cols_; j++) {
+            res(i, j) = (*this)(i, j) + value;
         }
     }
-    return *this;
+    return res;
 }
 
-Matrix Matrix::operator- (const Matrix& other) const{
-    if (rows_ != other.rows_ || cols_ != other.cols_){
-        throw std::invalid_argument("Matrix size not compatible for sum") ;
+template <typename T>
+Matrix<T>& Matrix<T>::operator+=(const Matrix<T>& other) {
+    if (rows_ != other.rows_ || cols_ != other.cols_) {
+        throw std::invalid_argument("Matrix size not compatible for sum");
     }
-    Matrix res = Matrix(rows_, cols_);
-    for (int i = 0; i< rows_; i++){
-        for (int j =0 ; j<cols_; j++){
-            res(i,j) = (*this)(i,j) - other(i,j);
-        }
-    }
-    return res ;
-}
-Matrix Matrix::operator- (float value) const{
-    Matrix res = Matrix(rows_, cols_);
-    for (int i = 0; i< rows_; i++){
-        for (int j =0 ; j<cols_; j++){
-            res(i,j) = (*this)(i,j) - value;
-        }
-    }
-    return res ;
-}
-
-Matrix& Matrix::operator-=(const Matrix& other) {
-    if (rows_ != other.rows_ || cols_ != other.cols_){
-        throw std::invalid_argument("Matrix size not compatible for sum") ;
-    }
-    for (int i = 0; i< rows_; i++){
-        for (int j =0 ; j<cols_; j++){
-            (*this)(i,j) -= other(i,j);
+    for (int i = 0; i < rows_; i++) {
+        for (int j = 0; j < cols_; j++) {
+            (*this)(i, j) += other(i, j);
         }
     }
     return *this;
 }
 
+template <typename T>
+Matrix<T> Matrix<T>::operator-(const Matrix<T>& other) const {
+    if (rows_ != other.rows_ || cols_ != other.cols_) {
+        throw std::invalid_argument("Matrix size not compatible for sum");
+    }
+    Matrix<T> res(rows_, cols_);
+    for (int i = 0; i < rows_; i++) {
+        for (int j = 0; j < cols_; j++) {
+            res(i, j) = (*this)(i, j) - other(i, j);
+        }
+    }
+    return res;
+}
 
-Matrix& Matrix::operator=(const Matrix&  other){
-    if (this == &other) return *this; // Self-assignment check
+template <typename T>
+Matrix<T> Matrix<T>::operator-(T value) const {
+    Matrix<T> res(rows_, cols_);
+    for (int i = 0; i < rows_; i++) {
+        for (int j = 0; j < cols_; j++) {
+            res(i, j) = (*this)(i, j) - value;
+        }
+    }
+    return res;
+}
+
+template <typename T>
+Matrix<T>& Matrix<T>::operator-=(const Matrix<T>& other) {
+    if (rows_ != other.rows_ || cols_ != other.cols_) {
+        throw std::invalid_argument("Matrix size not compatible for sum");
+    }
+    for (int i = 0; i < rows_; i++) {
+        for (int j = 0; j < cols_; j++) {
+            (*this)(i, j) -= other(i, j);
+        }
+    }
+    return *this;
+}
+
+template <typename T>
+Matrix<T>& Matrix<T>::operator=(const Matrix<T>& other) {
+    if (this == &other) return *this;
     
-    if (this->cols_ != other.cols_ || this->rows_ != other.rows_){
-        // Redimension: delete old data and allocate new
+    if (this->cols_ != other.cols_ || this->rows_ != other.rows_) {
         delete[] data_;
         rows_ = other.rows_;
         cols_ = other.cols_;
-        data_ = new float[rows_ * cols_];
+        data_ = new T[rows_ * cols_];
     }
     
-    // Copy data
-    for (int i = 0; i < rows_ * cols_; i++){
+    for (int i = 0; i < rows_ * cols_; i++) {
         data_[i] = other.data_[i];
     }
     
     return *this;
 }
 
-Matrix Matrix::operator* (const Matrix & other) const {
+template <typename T>
+Matrix<T> Matrix<T>::operator*(const Matrix<T>& other) const {
     if (cols_ != other.rows_) throw std::invalid_argument("Incompatible dimensions");
     
-    Matrix res(rows_, other.cols_); 
+    Matrix<T> res(rows_, other.cols_); 
     for (int i = 0; i < rows_; ++i) {
         for (int k = 0; k < cols_; ++k) {
-            float temp = (*this)(i, k);
+            T temp = (*this)(i, k);
             for (int j = 0; j < other.cols_; ++j) {
                 res(i, j) += temp * other(k, j);
             }
@@ -155,32 +163,38 @@ Matrix Matrix::operator* (const Matrix & other) const {
     return res;
 }
 
-Matrix Matrix::operator*(float lambda) {
-    Matrix res = Matrix(*this) ;
-    for (int i = 0; i< rows_*cols_; i++){
+template <typename T>
+Matrix<T> Matrix<T>::operator*(T lambda) {
+    Matrix<T> res(*this);
+    for (int i = 0; i < rows_ * cols_; i++) {
         res.data_[i] *= lambda;
     }
     return res;
 }
-Matrix& Matrix::operator/(float lambda){
-    if (lambda == 0){
-        throw std::invalid_argument("Division by 0") ;
+
+template <typename T>
+Matrix<T>& Matrix<T>::operator/(T lambda) {
+    if (lambda == static_cast<T>(0)) {
+        throw std::invalid_argument("Division by 0");
     }
-    (*this) = (*this)* (1/lambda) ;
+    (*this) = (*this) * (static_cast<T>(1) / lambda);
     return *this;
 }
-Matrix Matrix::hadamard(const Matrix& other){
-    Matrix res = Matrix(*this) ;
-    for (int i = 0; i< rows_; i++){
-        for (int j =0 ; j<cols_; j++){
-            res(i,j) *= other(i,j);
+
+template <typename T>
+Matrix<T> Matrix<T>::hadamard(const Matrix<T>& other) {
+    Matrix<T> res(*this);
+    for (int i = 0; i < rows_; i++) {
+        for (int j = 0; j < cols_; j++) {
+            res(i, j) *= other(i, j);
         }
     }
-    return res ;
+    return res;
 }
 
-void Matrix::transpose() {
-    float* data_bis_ = new float[rows_ * cols_];
+template <typename T>
+void Matrix<T>::transpose() {
+    T* data_bis_ = new T[rows_ * cols_];
     for (int i = 0; i < rows_; i++) {
         for (int j = 0; j < cols_; j++) {
             data_bis_[j * rows_ + i] = data_[i * cols_ + j];
@@ -191,8 +205,9 @@ void Matrix::transpose() {
     std::swap(rows_, cols_);
 }
 
-Matrix Matrix::transposed() const {
-    Matrix result(cols_, rows_);
+template <typename T>
+Matrix<T> Matrix<T>::transposed() const {
+    Matrix<T> result(cols_, rows_);
     for (int i = 0; i < rows_; i++) {
         for (int j = 0; j < cols_; j++) {
             result(j, i) = (*this)(i, j);
@@ -201,140 +216,148 @@ Matrix Matrix::transposed() const {
     return result;
 }
 
-Matrix& Matrix::apply(std::function<float (float)> func){
-    for (int i = 0; i < rows_;i++){
-        for (int j = 0; j< cols_ ; j++){
-            (*this)(i,j) = func((*this)(i,j)) ;
+template <typename T>
+Matrix<T>& Matrix<T>::apply(std::function<T(T)> func) {
+    for (int i = 0; i < rows_; i++) {
+        for (int j = 0; j < cols_; j++) {
+            (*this)(i, j) = func((*this)(i, j));
         }
     }
-    return *this ; 
+    return *this;
 }
 
-
-
-void Matrix::print() const {
-    for (int i = 0; i < rows_;i++){
-        for (int j = 0; j< cols_ ; j++){
-            std::cout<<" " << (*this)(i,j) << " " ;
+template <typename T>
+void Matrix<T>::print() const {
+    for (int i = 0; i < rows_; i++) {
+        for (int j = 0; j < cols_; j++) {
+            std::cout << " " << (*this)(i, j) << " ";
         }
-        std::cout << std::endl ;
+        std::cout << std::endl;
     }
-    std::cout << std::endl ; 
+    std::cout << std::endl; 
 }
 
-void Matrix::print(int i, int j) const {
-    std::cout << (*this)(i,j) << std::endl ;
+template <typename T>
+void Matrix<T>::print(int i, int j) const {
+    std::cout << (*this)(i, j) << std::endl;
 }
 
-void Matrix::print_col(int col) const{
-    for (int i = 0; i< rows_; i++){
-        std::cout << (*this)(i,col) << std::endl ;
+template <typename T>
+void Matrix<T>::print_col(int col) const {
+    for (int i = 0; i < rows_; i++) {
+        std::cout << (*this)(i, col) << std::endl;
     }
-    std::cout << std::endl ;
+    std::cout << std::endl;
 }
 
-void Matrix::print_row(int row) const{
-    for (int i = 0; i< cols_; i++){
-        std::cout << (*this)(row,i) << " " ;
+template <typename T>
+void Matrix<T>::print_row(int row) const {
+    for (int i = 0; i < cols_; i++) {
+        std::cout << (*this)(row, i) << " ";
     }
-    std::cout << std::endl ;
+    std::cout << std::endl;
 }
 
-void Matrix::randomize(float min, float max) {
+template <typename T>
+void Matrix<T>::randomize(T min, T max) {
     static std::random_device rd;
     static std::mt19937 gen(rd());
-    std::uniform_real_distribution<float> dis(min, max);
+    std::uniform_real_distribution<double> dis(static_cast<double>(min), static_cast<double>(max));
     
     for (int i = 0; i < rows_ * cols_; ++i) {
-        data_[i] = dis(gen);
+        data_[i] = static_cast<T>(dis(gen));
     }
 }
-float Matrix::sum() const {
-    float res = 0. ;
-    for (int i = 0; i < rows_*cols_; i++){
-        res += data_[i] ;
+
+template <typename T>
+T Matrix<T>::sum() const {
+    T res = static_cast<T>(0);
+    for (int i = 0; i < rows_ * cols_; i++) {
+        res += data_[i];
     } 
-    return res ; 
+    return res; 
 }
 
-float Matrix::max() const {
-    float max = (*this)(0,0) ; 
-    for (int i = 0 ; i < rows_*cols_; i++){
-        if (data_[i]> max){
-            max = data_[i] ;
+template <typename T>
+T Matrix<T>::max() const {
+    T m = (*this)(0, 0); 
+    for (int i = 0; i < rows_ * cols_; i++) {
+        if (data_[i] > m) {
+            m = data_[i];
         }
     }
-    return max ;
+    return m;
 }
 
-//argmax function only for column matrix
-int Matrix::argmax() const {
-float max = data_[0]; 
-int arg_max = 0; 
+template <typename T>
+int Matrix<T>::argmax() const {
+    T m = data_[0]; 
+    int arg_max = 0; 
 
-for (int i = 0; i<rows_; i++){
-if ((*this)(i,0)>max){
-            max = (*this)(i,0);
+    for (int i = 0; i < rows_; i++) {
+        if ((*this)(i, 0) > m) {
+            m = (*this)(i, 0);
             arg_max = i;
         }
     }
     return arg_max;
 }
 
-Matrix& Matrix::softmax(){
-for (int j = 0; j < cols_; j++) {
-        float max_val = (*this)(0, j);
+template <typename T>
+Matrix<T>& Matrix<T>::softmax() {
+    for (int j = 0; j < cols_; j++) {
+        T max_val = (*this)(0, j);
         for (int i = 1; i < rows_; i++) {
             max_val = std::max(max_val, (*this)(i, j));
         }
 
-        float sum = 0.0f;
+        T s = static_cast<T>(0);
         for (int i = 0; i < rows_; i++) {
-            (*this)(i, j) = std::exp((*this)(i, j) - max_val);
-            sum += (*this)(i, j);
+            (*this)(i, j) = std::exp(static_cast<double>((*this)(i, j) - max_val));
+            s += (*this)(i, j);
         }
 
         for (int i = 0; i < rows_; i++) {
-            (*this)(i, j) /= sum;
+            (*this)(i, j) /= s;
         }
     }
     return *this;
 }
 
-
-
-
-
-
-Matrix Matrix::sub_col(int col ) const {
-    float*  res = new float[rows_];
-    for (int i = 0 ; i<rows_; i++){
-        res[i] = (*this)(i,col);
+template <typename T>
+Matrix<T> Matrix<T>::sub_col(int col) const {
+    T* res = new T[rows_];
+    for (int i = 0; i < rows_; i++) {
+        res[i] = (*this)(i, col);
     } 
-    Matrix matrix = Matrix(rows_, 1, res) ;
+    Matrix<T> matrix(rows_, 1, res);
     delete[] res;
     return matrix;
 }
 
-Matrix Matrix::sub_row(int row ) const {
-    float* res = new float[cols_];
-    for (int i = 0 ; i<cols_; i++){
-        res[i] = (*this)(row,i);
+template <typename T>
+Matrix<T> Matrix<T>::sub_row(int row) const {
+    T* res = new T[cols_];
+    for (int i = 0; i < cols_; i++) {
+        res[i] = (*this)(row, i);
     } 
-    Matrix matrix =  Matrix(1, cols_, res);
-    delete [] res ;
-    return matrix ;
+    Matrix<T> matrix(1, cols_, res);
+    delete[] res;
+    return matrix;
 }
 
-Matrix Matrix::to_label_matrix() const {
-    Matrix result(10, cols_);
+template <typename T>
+Matrix<T> Matrix<T>::to_label_matrix() const {
+    Matrix<T> result(10, cols_);
     for (int col = 0; col < cols_; col++) {
         int label = static_cast<int>((*this)(0, col));
         for (int row = 0; row < 10; row++) {
-            result(row, col) = (row == label) ? 1.0f : 0.0f;
+            result(row, col) = (row == label) ? static_cast<T>(1) : static_cast<T>(0);
         }
     }
     return result;
 }
-
-
+// Explicit instantiations
+template class Matrix<float>;
+template class Matrix<double>;
+template class Matrix<int>;
