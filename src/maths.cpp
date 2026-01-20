@@ -271,16 +271,37 @@ float Matrix::max() const {
 //    int pos[2] = {0,0}; 
 //
 //    for (int i = 0 ; i < rows_; i++){
-//        for (int j = 0; j < cols_; j++){
-//            if ((*this)(i,j)> max){
-//                max = data_[i] ;
-//                pos[0], pos[1] = i,j ;
-//            }
-//        }
-//    }
-//    return pos ;
-//}
-//
+if ((*this)(i,0)>max){
+            max = (*this)(i,0);
+            arg_max = i;
+        }
+    }
+    return arg_max;
+}
+
+Matrix& Matrix::softmax(){
+for (int j = 0; j < cols_; j++) {
+        float max_val = (*this)(0, j);
+        for (int i = 1; i < rows_; i++) {
+            max_val = std::max(max_val, (*this)(i, j));
+        }
+
+        float sum = 0.0f;
+        for (int i = 0; i < rows_; i++) {
+            (*this)(i, j) = std::exp((*this)(i, j) - max_val);
+            sum += (*this)(i, j);
+        }
+
+        for (int i = 0; i < rows_; i++) {
+            (*this)(i, j) /= sum;
+        }
+    }
+    return *this;
+}
+
+
+
+
 
 
 Matrix Matrix::sub_col(int col ) const {
