@@ -9,12 +9,13 @@
 int main() {
     //Parameters
     int layers_config[] = {784, 128, 10};
+    int nb_layers = 3;
     int nb_epoch = 15;
     int batch_size = 16 ;
-    float learning_rate = 0.1f;
+    float learning_rate = 0.01f;
 
 
-    NeuralNetwork net(4, layers_config, batch_size); 
+    NeuralNetwork net(nb_layers, layers_config, batch_size); 
    
     std::cout << "Save file ?" << std::endl;
     std::string model_path = "trained_model.csv" ;
