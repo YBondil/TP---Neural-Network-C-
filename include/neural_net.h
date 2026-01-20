@@ -8,9 +8,9 @@ class NeuralNetwork {
 
         int nb_layers_ ;
         int batch_size_;
-        Matrix * layers ; 
-        Matrix * weights ; 
-        Matrix * bias ;
+        Matrix<float> * layers ; 
+        Matrix<float> * weights ; 
+        Matrix<float> * bias ;
     
     public : 
         NeuralNetwork(int nb_hidden_layers, int* hidden_layers_size) ;
@@ -19,10 +19,10 @@ class NeuralNetwork {
 
         void initialize_parameters();
         void display() const ;
-        void forward(const Matrix& input) ; 
-        void backward(const Matrix& target_y, float learning_rate);
+        void forward(const Matrix<float>& input) ; 
+        void backward(const Matrix<float>& target_y, float learning_rate);
 
-        void learn(const Matrix& data, float learning_rate, int epochs, std::string save_path);
+        void learn(const Matrix<float>& data, float learning_rate, int epochs, std::string save_path);
 
         void see_layer(int layer_nb){layers[layer_nb].print();};
 
@@ -30,5 +30,5 @@ class NeuralNetwork {
         void load_from_csv(std::string filename);
 
 
-        int prediction(const Matrix& image);
+        int prediction(const Matrix<float>& image);
 };

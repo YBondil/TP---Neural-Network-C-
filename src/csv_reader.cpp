@@ -50,7 +50,7 @@ std::vector<std::vector<float>> CSVReader::read(const std::string& filename, cha
     return data;
 }
 
-Matrix CSVReader::readAsMatrix(const std::string& filename, char delimiter, int maxLines) {
+Matrix<float> CSVReader::readAsMatrix(const std::string& filename, char delimiter, int maxLines) {
     auto data = read(filename, delimiter, maxLines);
     
     if (data.empty()) {
@@ -60,7 +60,7 @@ Matrix CSVReader::readAsMatrix(const std::string& filename, char delimiter, int 
     int rows = data.size();
     int cols = data[0].size();
     
-    Matrix result(rows, cols);
+    Matrix<float> result(rows, cols);
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
             result(i, j) = data[i][j];
@@ -95,7 +95,7 @@ std::vector<CSVReader::digit> CSVReader::readDigits(const std::string& filename,
         }
         
         // Create 28x28 matrix
-        Matrix image(28, 28);
+        Matrix<float> image(28, 28);
         for (int i = 0; i < 28; i++) {
             for (int j = 0; j < 28; j++) {
                 image(i, j) = pixels[i * 28 + j];

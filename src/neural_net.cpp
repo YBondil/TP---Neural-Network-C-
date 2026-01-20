@@ -14,18 +14,18 @@ NeuralNetwork::NeuralNetwork(int nb_layers, int* layers_sizes) {
     nb_layers_ = nb_layers;
     batch_size_ = 1;
     
-    layers = new Matrix[nb_layers_];
-    weights = new Matrix[nb_layers_ - 1];
-    bias = new Matrix[nb_layers_ - 1];
+    layers = new Matrix<float>[nb_layers_];
+    weights = new Matrix<float>[nb_layers_ - 1];
+    bias = new Matrix<float>[nb_layers_ - 1];
 
     for (int i = 0; i < nb_layers_; i++) {
-        layers[i] = Matrix(layers_sizes[i], batch_size_);
+        layers[i] = Matrix<float>(layers_sizes[i], batch_size_);
         
         if (i < nb_layers_ - 1) {
-            weights[i] = Matrix(layers_sizes[i+1], layers_sizes[i]);
+            weights[i] = Matrix<float>(layers_sizes[i+1], layers_sizes[i]);
             weights[i].randomize(-1.0, 1.0);
             
-            bias[i] = Matrix(layers_sizes[i+1], 1);
+            bias[i] = Matrix<float>(layers_sizes[i+1], 1);
             bias[i].randomize(-1.0, 1.0);
         }
     }
@@ -34,18 +34,18 @@ NeuralNetwork::NeuralNetwork(int nb_layers, int* layers_sizes,int batch_size) {
     nb_layers_ = nb_layers;
     batch_size_ = batch_size;
     
-    layers = new Matrix[nb_layers_];
-    weights = new Matrix[nb_layers_ - 1];
-    bias = new Matrix[nb_layers_ - 1];
+    layers = new Matrix<float>[nb_layers_];
+    weights = new Matrix<float>[nb_layers_ - 1];
+    bias = new Matrix<float>[nb_layers_ - 1];
 
     for (int i = 0; i < nb_layers_; i++) {
-        layers[i] = Matrix(layers_sizes[i], batch_size);
+        layers[i] = Matrix<float>(layers_sizes[i], batch_size);
         
         if (i < nb_layers_ - 1) {
-            weights[i] = Matrix(layers_sizes[i+1], layers_sizes[i]);
+            weights[i] = Matrix<float>(layers_sizes[i+1], layers_sizes[i]);
             weights[i].randomize(-1.0, 1.0);
             
-            bias[i] = Matrix(layers_sizes[i+1], 1);
+            bias[i] = Matrix<float>(layers_sizes[i+1], 1);
             bias[i].randomize(-1.0, 1.0);
         }
     }
@@ -98,7 +98,7 @@ void NeuralNetwork::display() const {
     std::cout << "===========================================" << std::endl;
 }
 
-void NeuralNetwork::forward(const Matrix& input) {
+void NeuralNetwork::forward(const Matrix<float>& input) {
     layers[0] = input;
     
     for (int i = 0; i < nb_layers_ - 1; i++) {
@@ -114,7 +114,7 @@ void NeuralNetwork::forward(const Matrix& input) {
         if (i == nb_layers_-2){
             layers[i+1].softmax() ;
         }else {
-            layers[i+1].apply(Maths::non_lin_func);
+            layers[i+1].apply(Maths_float::non_lin_func);
             }
     } 
 }
@@ -122,20 +122,20 @@ void NeuralNetwork::forward(const Matrix& input) {
 
 //on utilise le fait que simga_prime(z) = a(1-a)
 //permet l'economie du stockage de z
-void NeuralNetwork::backward(const Matrix& target_y, float learning_rate) {
-    Matrix delta = (layers[nb_layers_-1] - target_y);
+void NeuralNetwork::backward(const Matrix<float>& target_y, float learning_rate) {
+    Matrix<float> delta = (layers[nb_layers_-1] - target_y);
     int current_batch = delta.get_cols();
     
-    Matrix output_deriv = layers[nb_layers_-1];
-    output_deriv.apply(Maths::non_lin_deriv);
+    Matrix<float> output_deriv = layers[nb_layers_-1];
+    output_deriv.apply(Maths_float::non_lin_deriv);
     delta = delta.hadamard(output_deriv);
 
     for (int i = nb_layers_ - 2; i >= 0; i--) {
         // dW = (delta * a_prev^T) / current_batch
-        Matrix dW = delta * layers[i].transposed();
+        Matrix<float> dW = delta * layers[i].transposed();
         dW = dW * (1.0f / current_batch);
         
-        Matrix db(bias[i].get_rows(), 1);
+        Matrix<float> db(bias[i].get_rows(), 1);
         for (int r = 0; r < delta.get_rows(); r++) {
             float sum_err = 0;
             for (int c = 0; c < current_batch; c++) {
@@ -146,8 +146,8 @@ void NeuralNetwork::backward(const Matrix& target_y, float learning_rate) {
 
         if (i > 0) {
             delta = weights[i].transposed() * delta;
-            Matrix prev_layer_deriv = layers[i];
-            prev_layer_deriv.apply(Maths::non_lin_deriv);
+            Matrix<float> prev_layer_deriv = layers[i];
+            prev_layer_deriv.apply(Maths_float::non_lin_deriv);
             delta = delta.hadamard(prev_layer_deriv);
         }
 
@@ -156,7 +156,7 @@ void NeuralNetwork::backward(const Matrix& target_y, float learning_rate) {
     }
 }
 
-void NeuralNetwork::learn(const Matrix& data, float learning_rate, int epochs, std::string save_path) {
+void NeuralNetwork::learn(const Matrix<float>& data, float learning_rate, int epochs, std::string save_path) {
     int total_samples = data.get_rows();
     int input_dim = data.get_cols() - 1;
 
@@ -176,8 +176,8 @@ void NeuralNetwork::learn(const Matrix& data, float learning_rate, int epochs, s
         
         for (int i = 0; i <= total_samples - batch_size_; i += batch_size_) {
             
-            Matrix batch_features(input_dim, batch_size_);
-            Matrix batch_labels_raw(1, batch_size_);
+            Matrix<float> batch_features(input_dim, batch_size_);
+            Matrix<float> batch_labels_raw(1, batch_size_);
 
             for (int b = 0; b < batch_size_; b++) {
                 // Utiliser l'indice mélangé au lieu de i + b
@@ -190,7 +190,7 @@ void NeuralNetwork::learn(const Matrix& data, float learning_rate, int epochs, s
                 }
             }
 
-            Matrix target_y = batch_labels_raw.to_label_matrix();
+            Matrix<float> target_y = batch_labels_raw.to_label_matrix();
             forward(batch_features);
             backward(target_y, learning_rate);
         }
@@ -200,10 +200,10 @@ void NeuralNetwork::learn(const Matrix& data, float learning_rate, int epochs, s
     save_csv(save_path);
 }
 
-int NeuralNetwork::prediction(const Matrix& image) {
+int NeuralNetwork::prediction(const Matrix<float>& image) {
 
     forward(image);
-    Matrix& output = layers[nb_layers_ - 1];
+    Matrix<float>& output = layers[nb_layers_ - 1];
     int guess = output.argmax();
     return guess;
 
