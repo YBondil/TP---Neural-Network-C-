@@ -1,4 +1,6 @@
 #include "csv_reader.h"
+#include "maths.h"
+
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
@@ -20,7 +22,14 @@ void CSVReader::digit::visualize() const {
     }
     std::cout << std::endl;
 }
+CSVReader::digit CSVReader::matrix_to_digit(Matrix<float>& mat, int label){
 
+    CSVReader::digit res ; 
+    res.label = label;
+    res.pixels = Matrix<float>(28,28,mat.get_data());
+    return res;
+    
+}
 std::vector<std::vector<float>> CSVReader::read(const std::string& filename, char delimiter, int maxLines) {
     std::ifstream file(filename);
     if (!file.is_open()) {

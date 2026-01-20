@@ -41,11 +41,13 @@ class Matrix {
         //Other methods
         int get_rows()const {return rows_;};
         int get_cols()const {return cols_;};  
+        T* get_data() const{return data_ ;};
         void print() const ;
         void print(int i, int j) const;
         void print_col(int col) const;
         void print_row(int row) const;
-        void randomize(T min, T max) ;
+        void randomize_uni(T min, T max) ;
+        void randomize_normal(float mean, float std_dev);
         //maths methods
         T sum() const;
         T mean() const {return sum()/(rows_*cols_) ; };
@@ -56,8 +58,6 @@ class Matrix {
         Matrix<T> sub_col(int col) const;
         Matrix<T> sub_row(int row) const;
         Matrix<T> to_label_matrix() const;
-
-        void shuffle_rows() ; 
 };
 
 

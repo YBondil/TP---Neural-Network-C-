@@ -22,11 +22,13 @@ NeuralNetwork::NeuralNetwork(int nb_layers, int* layers_sizes) {
         layers[i] = Matrix<float>(layers_sizes[i], batch_size_);
         
         if (i < nb_layers_ - 1) {
+            int n_in = weights[i].get_cols();
+            float std_dev = std::sqrt(2.f / n_in);
             weights[i] = Matrix<float>(layers_sizes[i+1], layers_sizes[i]);
-            weights[i].randomize(-1.0, 1.0);
+            weights[i].randomize_normal(0.f, std_dev);
             
             bias[i] = Matrix<float>(layers_sizes[i+1], 1);
-            bias[i].randomize(-1.0, 1.0);
+            bias[i].randomize_uni(0.f, 0.f);
         }
     }
 }
@@ -42,11 +44,13 @@ NeuralNetwork::NeuralNetwork(int nb_layers, int* layers_sizes,int batch_size) {
         layers[i] = Matrix<float>(layers_sizes[i], batch_size);
         
         if (i < nb_layers_ - 1) {
+            int n_in = weights[i].get_cols();
+            float std_dev = std::sqrt(2.f / n_in);
             weights[i] = Matrix<float>(layers_sizes[i+1], layers_sizes[i]);
-            weights[i].randomize(-1.0, 1.0);
+            weights[i].randomize_normal(0.f,std_dev);
             
             bias[i] = Matrix<float>(layers_sizes[i+1], 1);
-            bias[i].randomize(-1.0, 1.0);
+            bias[i].randomize_uni(0.f, 0.f);
         }
     }
 }
@@ -59,13 +63,13 @@ NeuralNetwork::~NeuralNetwork() {
 
 
 
-void NeuralNetwork::initialize_parameters(){
-   
-    for(int i = 0; i<nb_layers_-1; i++){
-        weights[i].randomize(-.07f,.07f);
-        bias[i].randomize(-.07f,.07f);
-    }
-}
+//void NeuralNetwork::initialize_parameters(){
+//   
+//    for(int i = 0; i<nb_layers_-1; i++){
+//        weights[i].randomize(-.07f,.07f);
+//        bias[i].randomize(-.07f,.07f);
+//    }
+//}
 
 void NeuralNetwork::display() const {
     std::cout << "===========================================" << std::endl;

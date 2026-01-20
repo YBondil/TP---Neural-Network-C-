@@ -8,6 +8,7 @@ class NeuralNetwork {
 
         int nb_layers_ ;
         int batch_size_;
+        int epoch_;
         Matrix<float> * layers ; 
         Matrix<float> * weights ; 
         Matrix<float> * bias ;
@@ -17,7 +18,6 @@ class NeuralNetwork {
         NeuralNetwork(int nb_hidden_layers, int* hidden_layers_size, int batch_size) ;
         ~NeuralNetwork();
 
-        void initialize_parameters();
         void display() const ;
         void forward(const Matrix<float>& input) ; 
         void backward(const Matrix<float>& target_y, float learning_rate);

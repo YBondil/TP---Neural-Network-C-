@@ -259,13 +259,24 @@ void Matrix<T>::print_row(int row) const {
 }
 
 template <typename T>
-void Matrix<T>::randomize(T min, T max) {
+void Matrix<T>::randomize_uni(T min, T max) {
     static std::random_device rd;
     static std::mt19937 gen(rd());
     std::uniform_real_distribution<double> dis(static_cast<double>(min), static_cast<double>(max));
     
     for (int i = 0; i < rows_ * cols_; ++i) {
         data_[i] = static_cast<T>(dis(gen));
+    }
+}
+
+template <typename T>
+void Matrix<T>::randomize_normal(float mean, float equart_type) {
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    
+    std::normal_distribution<double> dist(mean, equart_type);
+    for (int i = 0; i < rows_ * cols_; ++i) {
+        data_[i] = static_cast<T>(dist(gen));
     }
 }
 
@@ -277,6 +288,7 @@ T Matrix<T>::sum() const {
     } 
     return res; 
 }
+
 
 template <typename T>
 T Matrix<T>::max() const {
