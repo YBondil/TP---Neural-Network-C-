@@ -22,7 +22,7 @@ NeuralNetwork::NeuralNetwork(int nb_layers, int* layers_sizes) {
         layers[i] = Matrix<float>(layers_sizes[i], batch_size_);
         
         if (i < nb_layers_ - 1) {
-            int n_in = weights[i].get_cols();
+            int n_in = layers_sizes[i];
             float std_dev = std::sqrt(2.f / n_in);
             weights[i] = Matrix<float>(layers_sizes[i+1], layers_sizes[i]);
             weights[i].randomize_normal(0.f, std_dev);

@@ -8,7 +8,6 @@ class NeuralNetwork {
 
         int nb_layers_ ;
         int batch_size_;
-        int epoch_;
         Matrix<float> * layers ; 
         Matrix<float> * weights ; 
         Matrix<float> * bias ;
