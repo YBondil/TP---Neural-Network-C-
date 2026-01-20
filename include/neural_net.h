@@ -30,5 +30,5 @@ class NeuralNetwork {
         void load_from_csv(std::string filename);
 
 
-        int prediction(const Matrix& image, int actual_label = -1);
+        int prediction(const Matrix& image);
 };
