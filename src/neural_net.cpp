@@ -126,9 +126,9 @@ void NeuralNetwork::backward(const Matrix<float>& target_y, float learning_rate)
     Matrix<float> delta = (layers[nb_layers_-1] - target_y);
     int current_batch = delta.get_cols();
     
-    Matrix<float> output_deriv = layers[nb_layers_-1];
-    output_deriv.apply(Maths_float::non_lin_deriv);
-    delta = delta.hadamard(output_deriv);
+//    Matrix<float> output_deriv = layers[nb_layers_-1];
+//    output_deriv.apply(Maths_float::non_lin_deriv);
+//    delta = delta.hadamard(output_deriv);
 
     for (int i = nb_layers_ - 2; i >= 0; i--) {
         // dW = (delta * a_prev^T) / current_batch
