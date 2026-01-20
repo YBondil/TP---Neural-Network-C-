@@ -2,6 +2,9 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <algorithm> 
+#include <numeric>   
+#include <random>    
 
 #include "csv_reader.h" 
 
@@ -59,8 +62,8 @@ NeuralNetwork::~NeuralNetwork() {
 void NeuralNetwork::initialize_parameters(){
    
     for(int i = 0; i<nb_layers_-1; i++){
-        weights[i].randomize(-1.f,1.f);
-        bias[i].randomize(-1.f,1.f);
+        weights[i].randomize(-.07f,.07f);
+        bias[i].randomize(-.07f,.07f);
     }
 }
 
@@ -108,7 +111,11 @@ void NeuralNetwork::forward(const Matrix& input) {
                 layers[i+1](k, j) += bias[i](k, 0);
             }
         }
-        layers[i+1].apply(Maths::sigmoid);
+        if (i == nb_layers_-2){
+            layers[i+1].softmax() ;
+        }else {
+            layers[i+1].apply(Maths::non_lin_func);
+            }
     } 
 }
 
@@ -118,11 +125,9 @@ void NeuralNetwork::forward(const Matrix& input) {
 void NeuralNetwork::backward(const Matrix& target_y, float learning_rate) {
     Matrix delta = (layers[nb_layers_-1] - target_y);
     int current_batch = delta.get_cols();
-
-    auto sig_deriv_from_a = [](float a) { return a * (1.0f - a); };
     
     Matrix output_deriv = layers[nb_layers_-1];
-    output_deriv.apply(sig_deriv_from_a);
+    output_deriv.apply(Maths::non_lin_deriv);
     delta = delta.hadamard(output_deriv);
 
     for (int i = nb_layers_ - 2; i >= 0; i--) {
@@ -142,7 +147,7 @@ void NeuralNetwork::backward(const Matrix& target_y, float learning_rate) {
         if (i > 0) {
             delta = weights[i].transposed() * delta;
             Matrix prev_layer_deriv = layers[i];
-            prev_layer_deriv.apply(sig_deriv_from_a);
+            prev_layer_deriv.apply(Maths::non_lin_deriv);
             delta = delta.hadamard(prev_layer_deriv);
         }
 
@@ -153,39 +158,56 @@ void NeuralNetwork::backward(const Matrix& target_y, float learning_rate) {
 
 void NeuralNetwork::learn(const Matrix& data, float learning_rate, int epochs, std::string save_path) {
     int total_samples = data.get_rows();
-    int input_dim = data.get_cols() - 1; // First column is the label
+    int input_dim = data.get_cols() - 1;
+
+    std::vector<int> indices(total_samples);
+    std::iota(indices.begin(), indices.end(), 0);
+
+    //random Number gen
+    std::random_device rd;
+    std::mt19937 g(rd());
 
     std::cout << "Starting training for " << epochs << " epochs..." << std::endl;
 
     for (int e = 0; e < epochs; e++) {
+        //suffle des données au début de l'epoch
+        std::shuffle(indices.begin(), indices.end(), g);
+
+        
         for (int i = 0; i <= total_samples - batch_size_; i += batch_size_) {
             
             Matrix batch_features(input_dim, batch_size_);
             Matrix batch_labels_raw(1, batch_size_);
 
             for (int b = 0; b < batch_size_; b++) {
-                int sample_idx = i + b;
-                //labels
+                // Utiliser l'indice mélangé au lieu de i + b
+                int sample_idx = indices[i + b]; 
+                
                 batch_labels_raw(0, b) = data(sample_idx, 0);
                 
-                // Store Normalized Pixels
                 for (int j = 0; j < input_dim; j++) {
                     batch_features(j, b) = data(sample_idx, j + 1) / 255.0f;
                 }
             }
 
             Matrix target_y = batch_labels_raw.to_label_matrix();
-            
             forward(batch_features);
             backward(target_y, learning_rate);
         }
         std::cout << "Epoch " << e + 1 << "/" << epochs << " completed." << std::endl;
     }
 
-    // 4. Save the results
     save_csv(save_path);
 }
 
+int NeuralNetwork::prediction(const Matrix& image) {
+
+    forward(image);
+    Matrix& output = layers[nb_layers_ - 1];
+    int guess = output.argmax();
+    return guess;
+
+}
 
 void NeuralNetwork::save_csv(std::string filename) {
     std::ofstream file(filename);
@@ -194,11 +216,9 @@ void NeuralNetwork::save_csv(std::string filename) {
         return;
     }
 
-    // Sauvegarde du nombre total de couches et de la taille du batch
     file << nb_layers_ << "," << batch_size_ << "\n";
 
     for (int i = 0; i < nb_layers_ - 1; i++) {
-        // Sauvegarde des Poids (Weights)
         file << "W," << i << "," << weights[i].get_rows() << "," << weights[i].get_cols() << "\n";
         for (int r = 0; r < weights[i].get_rows(); r++) {
             for (int c = 0; c < weights[i].get_cols(); c++) {
@@ -207,7 +227,6 @@ void NeuralNetwork::save_csv(std::string filename) {
             file << "\n";
         }
 
-        // Sauvegarde des Biais (Bias)
         file << "B," << i << "," << bias[i].get_rows() << "," << bias[i].get_cols() << "\n";
         for (int r = 0; r < bias[i].get_rows(); r++) {
             for (int c = 0; c < bias[i].get_cols(); c++) {
@@ -237,7 +256,7 @@ void NeuralNetwork::load_from_csv(std::string filename) {
     std::getline(ss, val, ',');
     int saved_batch_size = std::stoi(val);
 
-    // Vérification de sécurité : l'architecture doit correspondre
+    
     if (saved_nb_layers != nb_layers_) {
         std::cerr << "Erreur : L'architecture du fichier (" << saved_nb_layers 
                   << " couches) ne correspond pas au reseau actuel (" << nb_layers_ << ")." << std::endl;
@@ -250,10 +269,10 @@ void NeuralNetwork::load_from_csv(std::string filename) {
     }
 
     for (int i = 0; i < nb_layers_ - 1; i++) {
-        // Lecture de l'en-tête des poids
+        
         std::getline(file, line); 
         
-        // Chargement des données de la matrice de poids
+
         for (int r = 0; r < weights[i].get_rows(); r++) {
             std::getline(file, line);
             std::stringstream ss(line);
@@ -267,7 +286,6 @@ void NeuralNetwork::load_from_csv(std::string filename) {
         // Lecture de l'en-tête des biais
         std::getline(file, line);
 
-        // Chargement des données de la matrice de biais
         for (int r = 0; r < bias[i].get_rows(); r++) {
             std::getline(file, line);
             std::stringstream ss(line);
@@ -280,41 +298,4 @@ void NeuralNetwork::load_from_csv(std::string filename) {
     }
     file.close();
     std::cout << "Reseau charge avec succes depuis : " << filename << std::endl;
-}
-
-
-
-int NeuralNetwork::prediction(const Matrix& image, int actual_label) {
-    // 1. Reconstitution de la matrice 28x28
-    Matrix pixels_2d(28, 28);
-    for (int i = 0; i < 28; i++) {
-        for (int j = 0; j < 28; j++) {
-            pixels_2d(i, j) = image(i * 28 + j, 0);
-        }
-    }
-
-    // 2. Utilisation du vrai label pour la visualisation
-    CSVReader::digit d;
-    d.label = actual_label; // On utilise maintenant le label passé en paramètre
-    d.pixels = pixels_2d;
-    //d.visualize(); 
-
-    // 3. Calcul de la prédiction
-    forward(image);
-
-    // 4. Identification du résultat
-    Matrix& output = layers[nb_layers_ - 1];
-    int guess = 0;
-    float max_prob = output(0, 0);
-    for (int k = 1; k < output.get_rows(); k++) {
-        if (output(k, 0) > max_prob) {
-            max_prob = output(k, 0);
-            guess = k;
-        }
-    }
-//
-//    std::cout << ">>> Prédiction du réseau : " << guess 
-//              << " (Attendu : " << actual_label << ")" 
-//              << " | Confiance : " << max_prob * 100 << "%" << std::endl;
-    return guess;
 }
