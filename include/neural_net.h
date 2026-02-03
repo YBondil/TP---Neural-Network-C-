@@ -9,8 +9,12 @@ class NeuralNetwork {
         int nb_layers_ ;
         int batch_size_;
         Matrix<float> * layers ; 
+        
         Matrix<float> * weights ; 
         Matrix<float> * bias ;
+
+        Matrix<float> * velocity_weights;
+        Matrix<float> * velocity_bias;
     
     public : 
         NeuralNetwork(int nb_hidden_layers, int* hidden_layers_size) ;

@@ -17,6 +17,9 @@ NeuralNetwork::NeuralNetwork(int nb_layers, int* layers_sizes) {
     layers = new Matrix<float>[nb_layers_];
     weights = new Matrix<float>[nb_layers_ - 1];
     bias = new Matrix<float>[nb_layers_ - 1];
+    velocity_weights= new Matrix<float>[nb_layers_ - 1];
+    velocity_bias = new Matrix<float>[nb_layers_ - 1];
+
 
     for (int i = 0; i < nb_layers_; i++) {
         layers[i] = Matrix<float>(layers_sizes[i], batch_size_);
@@ -39,6 +42,8 @@ NeuralNetwork::NeuralNetwork(int nb_layers, int* layers_sizes,int batch_size) {
     layers = new Matrix<float>[nb_layers_];
     weights = new Matrix<float>[nb_layers_ - 1];
     bias = new Matrix<float>[nb_layers_ - 1];
+    velocity_weights= new Matrix<float>[nb_layers_ - 1];
+    velocity_bias = new Matrix<float>[nb_layers_ - 1];
 
     for (int i = 0; i < nb_layers_; i++) {
         layers[i] = Matrix<float>(layers_sizes[i], batch_size);
@@ -59,6 +64,8 @@ NeuralNetwork::~NeuralNetwork() {
     delete[] layers;
     delete[] weights;
     delete[] bias;
+    delete[] velocity_bias;
+    delete[] velocity_weights;
 }
 
 
@@ -119,9 +126,6 @@ void NeuralNetwork::backward(const Matrix<float>& target_y, float learning_rate)
     Matrix<float> delta = (layers[nb_layers_-1] - target_y);
     int current_batch = delta.get_cols();
     
-//    Matrix<float> output_deriv = layers[nb_layers_-1];
-//    output_deriv.apply(Maths_float::non_lin_deriv);
-//    delta = delta.hadamard(output_deriv);
 
     for (int i = nb_layers_ - 2; i >= 0; i--) {
         // dW = (delta * a_prev^T) / current_batch
@@ -144,8 +148,12 @@ void NeuralNetwork::backward(const Matrix<float>& target_y, float learning_rate)
             delta = delta.hadamard(prev_layer_deriv);
         }
 
-    weights[i] -= dW * learning_rate;
-    bias[i] -= db * learning_rate;
+    float mu = 0.9f; //coef frottement
+    velocity_weights[i] = velocity_weights[i] * mu - dW * learning_rate;
+    weights[i] += velocity_weights[i];
+
+    velocity_bias[i] = velocity_bias[i] * mu - db * learning_rate;
+    bias[i] += velocity_bias[i];
     }
 }
 
@@ -195,6 +203,9 @@ void NeuralNetwork::learn(const Matrix<float>& data, float learning_rate, int ep
             forward(batch_features);
             backward(target_y, learning_rate);
         }
+        if (e > 5) {
+            learning_rate *= 0.9f; //pour la stabilisation
+        }           
         std::cout << "Epoch " << e + 1 << "/" << epochs << " completed." << std::endl;
     }
 

@@ -10,11 +10,12 @@
 
 int main() {
     try {
-        int layers_config[] = {784, 128,128, 10}; 
-        int nb_layers = 4; 
-        int nb_epoch = 15;
-        int batch_size = 16;
-        float learning_rate = 0.1f;
+        
+        int layers_config[] = {784, 512, 10};
+        int nb_layers = 3;
+        int nb_epoch = 30;
+        int batch_size = 64;
+        float learning_rate = 0.05f;
 
         NeuralNetwork net(nb_layers, layers_config, batch_size); 
     
