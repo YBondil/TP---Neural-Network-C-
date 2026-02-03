@@ -18,3 +18,9 @@ public:
           + std::to_string(rowsA) + "x" + std::to_string(colsA) + ") and (" 
           + std::to_string(rowsB) + "x" + std::to_string(colsB) + ")") {}
 };
+
+class ModelLoadException : public MatrixException {
+public:
+    ModelLoadException(const std::string& filename, const std::string& details)
+        : MatrixException("Failed to load model from " + filename + ": " + details) {}
+};

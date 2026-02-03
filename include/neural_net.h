@@ -28,6 +28,5 @@ class NeuralNetwork {
         void save_csv(std::string filename);
         void load_from_csv(std::string filename);
 
-
         int prediction(const Matrix<float>& image);
 };

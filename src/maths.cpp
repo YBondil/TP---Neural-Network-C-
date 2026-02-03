@@ -1,5 +1,5 @@
-#include "../include/maths.h"
-#include "../include/exception.h"
+#include "maths.h"
+#include "exception.h"
 
 template <typename T>
 Matrix<T>::Matrix() {

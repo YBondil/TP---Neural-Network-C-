@@ -1,13 +1,13 @@
-#include "../include/neural_net.h"
+#include "neural_net.h"
+#include "exception.h"
+#include "csv_reader.h" 
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <algorithm> 
 #include <numeric>   
-#include <random>    
-
-#include "csv_reader.h" 
-
+#include <random>   
 
 
 NeuralNetwork::NeuralNetwork(int nb_layers, int* layers_sizes) {
@@ -164,6 +164,12 @@ void NeuralNetwork::learn(const Matrix<float>& data, float learning_rate, int ep
     int total_samples = data.get_rows();
     int input_dim = data.get_cols() - 1;
 
+    int expected_dim = weights[0].get_cols(); // premiere couche=entrée attendue
+
+    if (input_dim != expected_dim) {
+        throw MatrixException("Training data columns (" + std::to_string(input_dim) + 
+                              ") do not match network input (" + std::to_string(expected_dim) + ")");
+    }
     std::vector<int> indices(total_samples);
     std::iota(indices.begin(), indices.end(), 0);
 
@@ -246,8 +252,7 @@ void NeuralNetwork::save_csv(std::string filename) {
 void NeuralNetwork::load_from_csv(std::string filename) {
     std::ifstream file(filename);
     if (!file.is_open()) {
-        std::cerr << "Erreur : Impossible d'ouvrir le fichier " << filename << std::endl;
-        return;
+        throw ModelLoadException(filename, "File not found"); 
     }
 
     std::string line;
@@ -262,14 +267,11 @@ void NeuralNetwork::load_from_csv(std::string filename) {
 
     
     if (saved_nb_layers != nb_layers_) {
-        std::cerr << "Erreur : L'architecture du fichier (" << saved_nb_layers 
-                  << " couches) ne correspond pas au reseau actuel (" << nb_layers_ << ")." << std::endl;
-        return;
-    }
+        throw ModelLoadException(filename, "Architecture mismatch"); 
     
     if (saved_batch_size != batch_size_) {
-        std::cerr << "Avertissement : Taille de batch differente (fichier: " << saved_batch_size 
-                  << ", actuel: " << batch_size_ << ")." << std::endl;
+        std::cerr << "Warning : Batch size different (file: " << saved_batch_size 
+                  << ", current: " << batch_size_ << ")." << std::endl;
     }
 
     for (int i = 0; i < nb_layers_ - 1; i++) {
@@ -302,4 +304,5 @@ void NeuralNetwork::load_from_csv(std::string filename) {
     }
     file.close();
     std::cout << "Reseau charge avec succes depuis : " << filename << std::endl;
+}
 }
