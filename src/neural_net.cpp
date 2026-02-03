@@ -1,6 +1,6 @@
-#include "neural_net.h"
 #include "exception.h"
 #include "csv_reader.h" 
+#include "neural_net.h"
 
 #include <iostream>
 #include <fstream>
@@ -17,45 +17,52 @@ NeuralNetwork::NeuralNetwork(int nb_layers, int* layers_sizes) {
     layers = new Matrix<float>[nb_layers_];
     weights = new Matrix<float>[nb_layers_ - 1];
     bias = new Matrix<float>[nb_layers_ - 1];
-    velocity_weights= new Matrix<float>[nb_layers_ - 1];
+    velocity_weights = new Matrix<float>[nb_layers_ - 1];
     velocity_bias = new Matrix<float>[nb_layers_ - 1];
-
 
     for (int i = 0; i < nb_layers_; i++) {
         layers[i] = Matrix<float>(layers_sizes[i], batch_size_);
         
         if (i < nb_layers_ - 1) {
-            int n_in = layers_sizes[i];
+            int n_in = layers_sizes[i]; 
             float std_dev = std::sqrt(2.f / n_in);
+            
             weights[i] = Matrix<float>(layers_sizes[i+1], layers_sizes[i]);
             weights[i].randomize_normal(0.f, std_dev);
             
             bias[i] = Matrix<float>(layers_sizes[i+1], 1);
             bias[i].randomize_uni(0.f, 0.f);
+
+            velocity_weights[i] = Matrix<float>(layers_sizes[i+1], layers_sizes[i]);
+            velocity_bias[i] = Matrix<float>(layers_sizes[i+1], 1);
         }
     }
 }
-NeuralNetwork::NeuralNetwork(int nb_layers, int* layers_sizes,int batch_size) {
+NeuralNetwork::NeuralNetwork(int nb_layers, int* layers_sizes, int batch_size) {
     nb_layers_ = nb_layers;
     batch_size_ = batch_size;
     
     layers = new Matrix<float>[nb_layers_];
     weights = new Matrix<float>[nb_layers_ - 1];
     bias = new Matrix<float>[nb_layers_ - 1];
-    velocity_weights= new Matrix<float>[nb_layers_ - 1];
+    velocity_weights = new Matrix<float>[nb_layers_ - 1];
     velocity_bias = new Matrix<float>[nb_layers_ - 1];
 
     for (int i = 0; i < nb_layers_; i++) {
         layers[i] = Matrix<float>(layers_sizes[i], batch_size);
         
         if (i < nb_layers_ - 1) {
-            int n_in = weights[i].get_cols();
+            int n_in = layers_sizes[i]; 
             float std_dev = std::sqrt(2.f / n_in);
+            
             weights[i] = Matrix<float>(layers_sizes[i+1], layers_sizes[i]);
-            weights[i].randomize_normal(0.f,std_dev);
+            weights[i].randomize_normal(0.f, std_dev);
             
             bias[i] = Matrix<float>(layers_sizes[i+1], 1);
             bias[i].randomize_uni(0.f, 0.f);
+
+            velocity_weights[i] = Matrix<float>(layers_sizes[i+1], layers_sizes[i]);
+            velocity_bias[i] = Matrix<float>(layers_sizes[i+1], 1);
         }
     }
 }
@@ -71,7 +78,7 @@ NeuralNetwork::~NeuralNetwork() {
 
 void NeuralNetwork::display() const {
     std::cout << "===========================================" << std::endl;
-    std::cout << "ARCHITECTURE NETWORK" << std::endl;
+    std::cout << "NETWORK ARCHITECTURE" << std::endl;
     std::cout << "===========================================" << std::endl;
     std::cout << "Number of layers : " << nb_layers_ << std::endl;
     std::cout << "Batch size : " << batch_size_ << std::endl;
@@ -119,14 +126,10 @@ void NeuralNetwork::forward(const Matrix<float>& input) {
     } 
 }
 
-
-//on utilise le fait que simga_prime(z) = a(1-a)
-//permet l'economie du stockage de z
 void NeuralNetwork::backward(const Matrix<float>& target_y, float learning_rate) {
     Matrix<float> delta = (layers[nb_layers_-1] - target_y);
     int current_batch = delta.get_cols();
     
-
     for (int i = nb_layers_ - 2; i >= 0; i--) {
         // dW = (delta * a_prev^T) / current_batch
         Matrix<float> dW = delta * layers[i].transposed();
@@ -148,7 +151,7 @@ void NeuralNetwork::backward(const Matrix<float>& target_y, float learning_rate)
             delta = delta.hadamard(prev_layer_deriv);
         }
 
-    float mu = 0.9f; //coef frottement
+    float mu = 0.9f; //coef de frottement
     velocity_weights[i] = velocity_weights[i] * mu - dW * learning_rate;
     weights[i] += velocity_weights[i];
 
@@ -172,7 +175,6 @@ void NeuralNetwork::learn(const Matrix<float>& data, float learning_rate, int ep
     std::vector<int> indices(total_samples);
     std::iota(indices.begin(), indices.end(), 0);
 
-    //random Number gen
     std::random_device rd;
     std::mt19937 g(rd());
 
@@ -181,8 +183,9 @@ void NeuralNetwork::learn(const Matrix<float>& data, float learning_rate, int ep
     for (int e = 0; e < epochs; e++) {
         //suffle des données au début de l'epoch
         std::shuffle(indices.begin(), indices.end(), g);
-
-        
+        if (e > 5) {
+            learning_rate *= 0.9f; //pour la stabilisation
+        }     
         for (int i = 0; i <= total_samples - batch_size_; i += batch_size_) {
             
             Matrix<float> batch_features(input_dim, batch_size_);
@@ -203,9 +206,7 @@ void NeuralNetwork::learn(const Matrix<float>& data, float learning_rate, int ep
             forward(batch_features);
             backward(target_y, learning_rate);
         }
-        if (e > 5) {
-            learning_rate *= 0.9f; //pour la stabilisation
-        }           
+              
         std::cout << "Epoch " << e + 1 << "/" << epochs << " completed." << std::endl;
     }
 
@@ -290,7 +291,7 @@ void NeuralNetwork::load_from_csv(std::string filename) {
             }
         }
 
-        // Lecture de l'en-tête des biais
+        // Lecture de l'en-tete des biais
         std::getline(file, line);
 
         for (int r = 0; r < bias[i].get_rows(); r++) {

@@ -93,17 +93,16 @@ std::vector<CSVReader::digit> CSVReader::readDigits(const std::string& filename,
         std::stringstream ss(line);
         std::string value;
         
-        // Read label (first column)
+        // label
         std::getline(ss, value, ',');
         int label = std::stoi(value);
         
-        // Read pixels (784 values)
+        // read pixels
         std::vector<float> pixels;
         while (std::getline(ss, value, ',')) {
-            pixels.push_back(std::stof(value) / 255.0f);  // Normalize
+            pixels.push_back(std::stof(value) / 255.0f);  // normalisation
         }
-        
-        // Create 28x28 matrix
+    
         Matrix<float> image(28, 28);
         for (int i = 0; i < 28; i++) {
             for (int j = 0; j < 28; j++) {

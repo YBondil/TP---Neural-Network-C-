@@ -14,8 +14,8 @@ class Matrix {
        int cols_ ;
    
     public :    
-        Matrix(); // default constructoTr
-        Matrix(int rows, int cols); //set to 0 
+        Matrix();
+        Matrix(int rows, int cols); 
         Matrix(int rows, int cols, T* values);
         Matrix(Matrix<T> const& other) ;
         ~Matrix();  

@@ -90,7 +90,7 @@ int main() {
             while (true) {
                 std::cout << "Enter index (0 to " << test_data.get_rows() - 1 << ", -1 to stop): ";
                 int idx;
-                if (!(std::cin >> idx)) { // Vérifie si l'entrée est bien un nombre
+                if (!(std::cin >> idx)) { 
                     std::cin.clear(); 
                     std::string dummy; std::cin >> dummy; 
                     continue; 
