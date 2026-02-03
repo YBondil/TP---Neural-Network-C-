@@ -1,5 +1,5 @@
 #include "../include/maths.h"
-
+#include "../include/exception.h"
 
 template <typename T>
 Matrix<T>::Matrix() {
@@ -149,8 +149,9 @@ Matrix<T>& Matrix<T>::operator=(const Matrix<T>& other) {
 
 template <typename T>
 Matrix<T> Matrix<T>::operator*(const Matrix<T>& other) const {
-    if (cols_ != other.rows_) throw std::invalid_argument("Incompatible dimensions");
-    
+    if (this->cols_ != other.rows_) {
+    throw DimensionMismatchException(this->rows_, this->cols_, other.rows_, other.cols_);
+    }
     Matrix<T> res(rows_, other.cols_); 
     for (int i = 0; i < rows_; ++i) {
         for (int k = 0; k < cols_; ++k) {
@@ -279,6 +280,7 @@ void Matrix<T>::randomize_normal(float mean, float equart_type) {
         data_[i] = static_cast<T>(dist(gen));
     }
 }
+
 
 template <typename T>
 T Matrix<T>::sum() const {
