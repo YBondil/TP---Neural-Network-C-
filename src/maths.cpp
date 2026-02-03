@@ -46,9 +46,7 @@ Matrix<T>::~Matrix() {
 template <typename T>
 T& Matrix<T>::operator()(int i, int j) const {
     if (i < 0 || i >= rows_ || j < 0 || j >= cols_) {
-        std::cerr << "Erreur d'accès : indices (" << i << "," << j 
-                  << ") pour une matrice de taille " << rows_ << "x" << cols_ << std::endl;
-        throw std::out_of_range("Index de matrice hors limites");
+        throw MatrixIndexAccessException(i,j);
     }
     return data_[i * cols_ + j];
 }
@@ -56,7 +54,7 @@ T& Matrix<T>::operator()(int i, int j) const {
 template <typename T>
 Matrix<T> Matrix<T>::operator+(const Matrix<T>& other) const {
     if (rows_ != other.rows_ || cols_ != other.cols_) {
-        throw std::invalid_argument("Matrix size not compatible for sum");
+        throw MatrixSizeOperationException(other.rows_, other.cols_, rows_, cols_, "+");
     }
     Matrix<T> res(rows_, cols_);
     for (int i = 0; i < rows_; i++) {
@@ -81,7 +79,7 @@ Matrix<T> Matrix<T>::operator+(T value) const {
 template <typename T>
 Matrix<T>& Matrix<T>::operator+=(const Matrix<T>& other) {
     if (rows_ != other.rows_ || cols_ != other.cols_) {
-        throw std::invalid_argument("Matrix size not compatible for sum");
+        throw MatrixSizeOperationException(other.rows_, other.cols_, rows_, cols_, "+");
     }
     for (int i = 0; i < rows_; i++) {
         for (int j = 0; j < cols_; j++) {
@@ -94,7 +92,7 @@ Matrix<T>& Matrix<T>::operator+=(const Matrix<T>& other) {
 template <typename T>
 Matrix<T> Matrix<T>::operator-(const Matrix<T>& other) const {
     if (rows_ != other.rows_ || cols_ != other.cols_) {
-        throw std::invalid_argument("Matrix size not compatible for sum");
+        throw MatrixSizeOperationException(other.rows_, other.cols_, rows_, cols_, "-");
     }
     Matrix<T> res(rows_, cols_);
     for (int i = 0; i < rows_; i++) {
@@ -119,7 +117,7 @@ Matrix<T> Matrix<T>::operator-(T value) const {
 template <typename T>
 Matrix<T>& Matrix<T>::operator-=(const Matrix<T>& other) {
     if (rows_ != other.rows_ || cols_ != other.cols_) {
-        throw std::invalid_argument("Matrix size not compatible for sum");
+        throw MatrixSizeOperationException(other.rows_, other.cols_, rows_, cols_, "-");
     }
     for (int i = 0; i < rows_; i++) {
         for (int j = 0; j < cols_; j++) {
@@ -150,7 +148,7 @@ Matrix<T>& Matrix<T>::operator=(const Matrix<T>& other) {
 template <typename T>
 Matrix<T> Matrix<T>::operator*(const Matrix<T>& other) const {
     if (this->cols_ != other.rows_) {
-    throw DimensionMismatchException(this->rows_, this->cols_, other.rows_, other.cols_);
+        throw MatrixSizeOperationException(other.rows_, other.cols_, rows_, cols_, "*");
     }
     Matrix<T> res(rows_, other.cols_); 
     for (int i = 0; i < rows_; ++i) {

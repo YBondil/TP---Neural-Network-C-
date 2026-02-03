@@ -62,39 +62,28 @@ NeuralNetwork::~NeuralNetwork() {
 }
 
 
-
-//void NeuralNetwork::initialize_parameters(){
-//   
-//    for(int i = 0; i<nb_layers_-1; i++){
-//        weights[i].randomize(-.07f,.07f);
-//        bias[i].randomize(-.07f,.07f);
-//    }
-//}
-
 void NeuralNetwork::display() const {
     std::cout << "===========================================" << std::endl;
-    std::cout << "ARCHITECTURE DU RESEAU NEURONAL (BATCH)" << std::endl;
+    std::cout << "ARCHITECTURE NETWORK" << std::endl;
     std::cout << "===========================================" << std::endl;
-    std::cout << "Nombre total de couches : " << nb_layers_ << std::endl;
-    std::cout << "Taille du batch : " << batch_size_ << std::endl;
+    std::cout << "Number of layers : " << nb_layers_ << std::endl;
+    std::cout << "Batch size : " << batch_size_ << std::endl;
 
-    // Affichage de la couche d'entrée (Couche 0)
-    std::cout << "\n--- COUCHE 0 (ENTREE) ---" << std::endl;
-    std::cout << "Taille : " << layers[0].get_rows() << " neurones x " << batch_size_ << " echantillons" << std::endl;
+    std::cout << "\n--- LAYER 0 (ENTRY) ---" << std::endl;
+    std::cout << "Size : " << layers[0].get_rows() << " neurones x " << batch_size_ << " batch" << std::endl;
 
-    // Boucle pour les couches suivantes (Cachées et Sortie)
     for (int i = 1; i < nb_layers_; ++i) {
-        std::string type = (i == nb_layers_ - 1) ? "SORTIE" : "CACHEE";
-        std::cout << "\n--- COUCHE " << i << " (" << type << ") ---" << std::endl;
-        std::cout << "Taille : " << layers[i].get_rows() << " neurones x " << batch_size_ << " echantillons" << std::endl;
+        std::string type = (i == nb_layers_ - 1) ? "OUT" : "HIDDEN";
+        std::cout << "\n--- LAYER " << i << " (" << type << ") ---" << std::endl;
+        std::cout << "Size : " << layers[i].get_rows() << " neurones x " << batch_size_ << " batch" << std::endl;
 
-        // Poids reliant la couche précédente (i-1) à la couche actuelle (i)
-        std::cout << "Poids (weights[" << i - 1 << "]) reliant L" << i - 1 << " -> L" << i 
+        // Poids reliant la couche précédente et la couche actuelle
+        std::cout << "Weights (weights[" << i - 1 << "]) linking L" << i - 1 << " -> L" << i 
                   << " [" << weights[i - 1].get_rows() << "x" << weights[i - 1].get_cols() << "] :" << std::endl;
         weights[i - 1].print();
 
-        // Biais appliqué à la couche actuelle (i)
-        std::cout << "Biais (bias[" << i - 1 << "]) de la couche L" << i 
+        // Biais applique à la couche actuelle 
+        std::cout << "Bias (bias[" << i - 1 << "]) of layer L" << i 
                   << " [" << bias[i - 1].get_rows() << "x" << bias[i - 1].get_cols() << "] :" << std::endl;
         bias[i - 1].print();
     }
@@ -161,6 +150,8 @@ void NeuralNetwork::backward(const Matrix<float>& target_y, float learning_rate)
 }
 
 void NeuralNetwork::learn(const Matrix<float>& data, float learning_rate, int epochs, std::string save_path) {
+    
+    
     int total_samples = data.get_rows();
     int input_dim = data.get_cols() - 1;
 
@@ -222,8 +213,7 @@ int NeuralNetwork::prediction(const Matrix<float>& image) {
 void NeuralNetwork::save_csv(std::string filename) {
     std::ofstream file(filename);
     if (!file.is_open()) {
-        std::cerr << "Erreur : Impossible de créer le fichier " << filename << std::endl;
-        return;
+        throw ModelSaveException(filename, "File not found") ;
     }
 
     file << nb_layers_ << "," << batch_size_ << "\n";
@@ -246,7 +236,7 @@ void NeuralNetwork::save_csv(std::string filename) {
         }
     }
     file.close();
-    std::cout << "Reseau sauvegarde avec succes dans : " << filename << std::endl;
+    std::cout << "Network saved correctly in : " << filename << std::endl;
 }
 
 void NeuralNetwork::load_from_csv(std::string filename) {
@@ -303,6 +293,6 @@ void NeuralNetwork::load_from_csv(std::string filename) {
         }
     }
     file.close();
-    std::cout << "Reseau charge avec succes depuis : " << filename << std::endl;
+    std::cout << "Network loaded correcly from : " << filename << std::endl;
 }
 }
