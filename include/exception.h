@@ -11,13 +11,15 @@ public:
     }
 };
 class MatrixSizeOperationException : public MatrixException {
+public :
     MatrixSizeOperationException(int row_1, int col_1, int row_2,  int col_2, std::string operation) 
         : MatrixException("Size (" 
             + std::to_string(row_1) + ", " + std::to_string(col_1) + ") and ("
-            + std::to_string(row_1) + ", " + std::to_string(col_1) + ") not compatible for operation " 
+            + std::to_string(row_2) + ", " + std::to_string(col_2) + ") not compatible for operation " 
             + operation ){}
 };
 class MatrixIndexAccessException : public MatrixException {
+public :
     MatrixIndexAccessException(int index_1, int index_2) 
         : MatrixException("Index " 
             + std::to_string(index_1) + " and " 
