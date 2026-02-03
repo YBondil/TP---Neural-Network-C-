@@ -60,6 +60,11 @@ class Matrix {
         Matrix<T> to_label_matrix() const;
 };
 
+template <typename T>
+class Column : public Matrix<T>{
+    int col = 1 ;
+
+};
 
 namespace Maths_float{
     inline float values[9] = {1., 0., 0., 0., 1., 0., 0., 0., 1.}; 

@@ -10,10 +10,14 @@ make
 ./Neural_network
 ```
 
+hp = other.hp
+
+
+moster.set_hp()
+
 
 ## To do
 
-- [X] softmax
-- [ ] cross entropy
-- [ ] templater la bib matrix
-- [X] ReLu plutot que sigmoid
+- [ ] Custom Error handdling
+- [ ] Ajouter de l'heritage (col pour mat ?)
+- [ ] 
