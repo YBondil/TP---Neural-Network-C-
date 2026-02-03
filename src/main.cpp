@@ -8,6 +8,38 @@
 #include "exception.h"
 
 int main() {
+    //Parameters
+    int layers_config[] = {784, 128, 10};
+    int nb_layers = 3;
+    int nb_epoch = 15;
+    int batch_size = 16 ;
+    float learning_rate = 0.01f;
+
+
+    NeuralNetwork net(nb_layers, layers_config, batch_size); 
+   
+    std::cout << "Save file ?" << std::endl;
+    std::string model_path = "trained_model.csv" ;
+    std::cin>>model_path;
+    std::ifstream model_file(model_path);
+
+    if (model_file.good()) {
+        model_file.close();
+        std::cout << "--- MODEL FOUND ---" << std::endl;
+        net.load_from_csv(model_path);
+    } else {
+            std::cout << "--- NO MODEL FOUND : BEGINNING OF LEARNING ---" << std::endl;
+        
+            Matrix<float> train_data = CSVReader::readAsMatrix("data/Mnist/train.csv", ',');
+        
+            net.learn(train_data, learning_rate, nb_epoch, model_path);
+            std::cout << "Leaning ended model saved in " << model_path << std::endl;
+            std::cout << "Loading data/Mnist/test.csv..." << std::endl;
+    }
+
+    std::cout << "Loading data/Mnist/test.csv..." << std::endl;
+    Matrix<float> test_data = CSVReader::readAsMatrix("data/Mnist/test.csv", ',');
+    std::ofstream error_file("test_python/errors.csv");
     
     Matrix<float> test(4, 3);
     Matrix<float> test2(2, 2); 
